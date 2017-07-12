@@ -88,9 +88,29 @@ where user=? and date =? and hour =?" user date hour)))
      [label "on"]
      [callback
       (λ (btn evt)
-        (attend! (get-user) (get-date) (get-hour) (get-message)))])
+        (begin
+          (attend! (get-user) (get-date) (get-hour) (send text-field get-value))
+          (send text-field set-value "")
+          (send frame show #f)))])
 
-(define start
+(define launch
   (λ ()
     (send frame show #t)))
-    
+
+(define thd #f)
+
+(define start
+  (λ (sec)
+    (set!
+     thd
+     (thread
+      (λ ()
+        (let loop ()
+          (launch)
+          (sleep sec)
+          (loop)))))))
+
+(define stop
+  (λ ()
+    (kill-thread thd)))
+   
