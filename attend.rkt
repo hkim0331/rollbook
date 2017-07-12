@@ -100,17 +100,17 @@ where user=? and date =? and hour =?" user date hour)))
 (define thd #f)
 
 (define start
-  (λ ()
+  (λ (sec)
     (set!
      thd
      (thread
       (λ ()
         (let loop ()
           (launch)
-          (sleep 10)
+          (sleep sec)
           (loop)))))))
 
-(define finish
+(define stop
   (λ ()
     (kill-thread thd)))
    

@@ -38,8 +38,9 @@ EOF3
 
   def show(user)
     print <<EOF
-<h2>#{user} record</h2>
+<h2>#{user} records</h2>
 EOF
+    
     DB.fetch("select distinct date, hour from rollbook where user=? order by date, hour", user).each do |row|
       print <<EOD
 <p>#{row[:date]}, #{row[:hour]}</p>
