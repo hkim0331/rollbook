@@ -1,4 +1,5 @@
 #!/usr/local/bin/ruby
+# coding: utf-8
 require 'sequel'
 require 'cgi'
 
@@ -9,6 +10,7 @@ content-type: text/html
 EOH
 
 begin
+  MARK = %w{ ⚫ ◯ }
   DB = Sequel.sqlite("rollbook.db")
   cgi = CGI.new
 
@@ -40,14 +42,33 @@ EOF3
     print <<EOF
 <h2>#{user} records</h2>
 EOF
-    
+    attends = Hash.new([-1,0,0,0,0,0,-1])
     DB.fetch("select distinct date, hour from rollbook where user=? order by date, hour", user).each do |row|
-      print <<EOD
-<p>#{row[:date]}, #{row[:hour]}</p>
-EOD
+#       print <<EOD
+# <p>#{row[:date]}, #{row[:hour]}</p>
+# EOD
+      attends[row[:date]][row[:hour]]=1
     end
+
+    dates=Array.new
+    DB.fetch("select distinct date from rollbook order by date").each do |date|
+      dates.push date[:date]
+    end
+
+    puts "<table>"
+    dates.each do |date|
+      puts "<tr><th>#{date}</th>"
+      (1..5).each do |hour|
+        puts "<td>#{MARK[attends[date][hour]]}</td>"
+      end
+      puts "</tr>"
+    end
+    puts "</table>"
   end
 
+  #
+  # main starts here
+  #
   if (cgi['cmd'] =~/show/ and cgi['user'])
     show(cgi['user'])
   else
