@@ -96,4 +96,21 @@ where user=? and date =? and hour =?" user date hour)))
 (define launch
   (λ ()
     (send frame show #t)))
-    
+
+(define thd #f)
+
+(define start
+  (λ ()
+    (set!
+     thd
+     (thread
+      (λ ()
+        (let loop ()
+          (launch)
+          (sleep 10)
+          (loop)))))))
+
+(define finish
+  (λ ()
+    (kill-thread thd)))
+   
