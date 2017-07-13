@@ -4,19 +4,17 @@
 (define DEBUG #t)
 
 (define db #f)
-
 (if DEBUG
-    (set!
-     db
-     (sqlite3-connect #:database "rollbook.db"))
-    (set!
-     db
-     (mysql-connect #:user "user"
-                    #:password "pass"
-                    #:database "db"
-                    #:server "vm2017.local")))
+    (begin
+      (displayln "sqlite3.")
+      (set! db
+            (sqlite3-connect #:database "rollbook.db")))
+    (set! db
+          (mysql-connect #:user (getenv "A_USER")
+                         #:password (getenv "A_PASS")
+                         #:database "db"
+                         #:server "vm2017.local")))
 
-;;can not use DATABASE CURRENT_TIMESTAMP. is it JST?
 (define get-date
   (λ ()
     (let ((today (current-date)))
@@ -101,6 +99,7 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define start
   (λ (sec)
+    (displayln "started")
     (set!
      thd
      (thread
@@ -110,7 +109,24 @@ where user=? and date =? and hour =?" user date hour)))
           (sleep sec)
           (loop)))))))
 
+
 (define stop
   (λ ()
-    (kill-thread thd)))
-   
+    (kill-thread thd)
+    (displayln "stopped")))
+
+;;
+;; main starts here
+;;
+
+(start 10)
+
+;no keyboard interaction
+(define wait-thread
+  (λ ()
+    (let loop ()
+      (sleep 1)
+      (loop))))
+(wait-thread)
+
+(displayln "finish")

@@ -17,5 +17,5 @@ debug:
 
 clean:
 	${RM} attend
-	${RM} -rattend.app
+	${RM} -r attend.app
 

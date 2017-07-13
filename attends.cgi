@@ -10,9 +10,21 @@ content-type: text/html
 EOH
 
 begin
-  MARK = %w{ ⚫ ◯ }
-  DB = Sequel.sqlite("rollbook.db")
+  DB = if true
+         Sequel.sqlite("rollbook.db")
+       else
+         Sequel.connect("mysql2:#{ENV['A_USER']}:#{ENV['A_PASS']}//vm2017.local/db")
+       end
   cgi = CGI.new
+
+  MARK = %w{ ⚫ ◯ }
+  def mark(n)
+    if n.nil?
+      ""
+    else
+      MARK[n]
+    end
+  end
 
   def users_all()
     ret = []
@@ -39,18 +51,19 @@ EOF3
   end
 
   def show(user)
-    print <<EOF
-<h2>#{user} records</h2>
-EOF
-    attends = Hash.new([-1,0,0,0,0,0,-1])
+    puts "<h2>#{user} records</h2>"
+
+    attends = Hash.new()
     DB.fetch("select distinct date, hour from rollbook where user=? order by date, hour", user).each do |row|
-#       print <<EOD
-# <p>#{row[:date]}, #{row[:hour]}</p>
-# EOD
-      attends[row[:date]][row[:hour]]=1
+      if attends.has_key?(row[:date])
+        attends[row[:date]][row[:hour]] = 1
+      else
+        attends[row[:date]] = [0,0,0,0,0]
+        attends[row[:date]][row[:hour]] = 1
+      end
     end
 
-    dates=Array.new
+    dates = Array.new
     DB.fetch("select distinct date from rollbook order by date").each do |date|
       dates.push date[:date]
     end
@@ -59,7 +72,7 @@ EOF
     dates.each do |date|
       puts "<tr><th>#{date}</th>"
       (1..5).each do |hour|
-        puts "<td>#{MARK[attends[date][hour]]}</td>"
+        puts "<td>#{mark(attends[date][hour])}</td>"
       end
       puts "</tr>"
     end
