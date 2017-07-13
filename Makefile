@@ -16,6 +16,6 @@ debug:
 	./server --root .
 
 clean:
-	${RM} attend
-	${RM} -r attend.app
+	${RM} attend test-thread
+	${RM} -r *.app
 

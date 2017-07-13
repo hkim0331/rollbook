@@ -76,12 +76,12 @@ where user=? and date =? and hour =?" user date hour)))
 (define frame (new frame% [label "roolbook"]))
 
 (define vp (new vertical-pane% [parent frame]))
-  
+
 (define text-field (new text-field% [parent vp]
                         [label ""]
                         [min-width 400]
                         [min-height 50]))
-  
+
 (new button% [parent vp]
      [label "on"]
      [callback
@@ -89,11 +89,12 @@ where user=? and date =? and hour =?" user date hour)))
         (begin
           (attend! (get-user) (get-date) (get-hour) (send text-field get-value))
           (send text-field set-value "")
-          (send frame show #f)))])
+          (send frame iconize #t)
+          ))])
 
-(define launch
-  (λ ()
-    (send frame show #t)))
+;; (define launch
+;;   (λ ()
+;;     (send frame show #t)))
 
 (define thd #f)
 
@@ -105,10 +106,9 @@ where user=? and date =? and hour =?" user date hour)))
      (thread
       (λ ()
         (let loop ()
-          (launch)
+          (send frame show #t)
           (sleep sec)
           (loop)))))))
-
 
 (define stop
   (λ ()
@@ -119,14 +119,9 @@ where user=? and date =? and hour =?" user date hour)))
 ;; main starts here
 ;;
 
-(start 10)
+(start 30)
 
-;no keyboard interaction
-(define wait-thread
-  (λ ()
-    (let loop ()
-      (sleep 1)
-      (loop))))
-(wait-thread)
+;;;no keyboard interaction
+(sleep 3)
 
 (displayln "finish")
