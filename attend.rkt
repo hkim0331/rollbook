@@ -1,7 +1,7 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-(define DEBUG #t)
+(define DEBUG #f)
 (define db #f)
 (if DEBUG
     (begin
@@ -119,5 +119,5 @@ where user=? and date =? and hour =?" user date hour)))
 ;;
 ;; main starts here
 ;;
-(start 3600)
+(start 30)
 (sleep 3)
