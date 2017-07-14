@@ -1,13 +1,12 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-(define DEBUG #f)
+(define DEBUG #t)
+
 (define db #f)
 (if DEBUG
-    (begin
-      (displayln "sqlite3.")
-      (set! db
-            (sqlite3-connect #:database "rollbook.db")))
+    (set! db
+          (sqlite3-connect #:database "rollbook.db"))
     (set! db
           (mysql-connect #:user "rollbook"
                          #:password "secret"
