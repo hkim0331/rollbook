@@ -1,4 +1,4 @@
-#!/usr/local/bin/ruby
+#!/usr/bin/env ruby
 # coding: utf-8
 require 'sequel'
 require 'cgi'
@@ -7,6 +7,7 @@ print <<EOH
 content-type: text/html
 
 <head>
+<meta charset="utf-8">
 <link rel="stylesheet"
 href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
@@ -18,16 +19,17 @@ crossorigin="anonymous">
 EOH
 
 begin
-  DB = if true
-         Sequel.sqlite("rollbook.db")
+  DB = if false
+        Sequel.sqlite("rollbook.db")
        else
-         Sequel.connect("mysql2:#{ENV['A_USER']}:#{ENV['A_PASS']}//vm2017.local/db")
+	Sequel.connect("mysql2://rollbook:#{ENV['APASS']}@localhost/admin")
        end
   cgi = CGI.new
 
-  MARK = %w{ ⚫ ◯ }
+  MARK = %w{ ⚫  ◯  }
   def mark(n)
     if n.nil?
+
       ""
     else
       MARK[n]

@@ -1,5 +1,5 @@
 create table rollbook (
-    id integer primary key autoincrement,
+    id integer primary key auto_increment,
     user varchar(20) not null,
     date varchar(10) not null,
     hour integer not null,
