@@ -47,10 +47,9 @@
     (getenv "USER")))
 
 (define dialog
-  (new dialog% [label "error"][style '(close-button)]))
-
-(new message% [parent dialog]
-     [label "it's not a working time."])
+  (λ (message)
+   (new message% [parent (new dialog% [label "error"])]
+     [label message])))
 
 (define attend?
   (λ (user date hour)
@@ -65,8 +64,8 @@ where user=? and date =? and hour =?" user date hour)))
 (define attend!
   (λ (user date hour message)
     (cond
-     ((and (not DEBUG) (zero? hour)) (send dialog show #t)) ;;dialog1
-     ((and (not DEBUG) (attend? user date hour)) (send dialog show #t)) ;;dialog2
+     ((and (not DEBUG) (zero? hour)) (dialog "it's not working time"))
+     ((and (not DEBUG) (attend? user date hour)) (dialog "already recorded")) ;;dialog2
      (else (query-exec
             db
             "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
