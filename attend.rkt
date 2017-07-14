@@ -86,15 +86,13 @@ where user=? and date =? and hour =?" user date hour)))
      [label "on"]
      [callback
       (λ (btn evt)
-        (begin
-          (attend! (get-user) (get-date) (get-hour) (send text-field get-value))
-          (send text-field set-value "")
-          (send frame iconize #t)
-          ))])
-
-;; (define launch
-;;   (λ ()
-;;     (send frame show #t)))
+        (let ((message (send text-field get-value)))
+          (if (too-short? message)
+              (dialog "message too short")
+              (begin
+                (attend! (get-user) (get-date) (get-hour) message)
+                (send text-field set-value "")
+                (send frame iconize #t)))))])
 
 (define thd #f)
 

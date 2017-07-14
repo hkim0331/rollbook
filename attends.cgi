@@ -6,6 +6,14 @@ require 'cgi'
 print <<EOH
 content-type: text/html
 
+<head>
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
 <h1>Rollbook</h1>
 EOH
 
@@ -58,7 +66,7 @@ EOF3
       if attends.has_key?(row[:date])
         attends[row[:date]][row[:hour]] = 1
       else
-        attends[row[:date]] = [0,0,0,0,0]
+        attends[row[:date]] = [0,0,0,0,0,0]
         attends[row[:date]][row[:hour]] = 1
       end
     end
@@ -68,7 +76,8 @@ EOF3
       dates.push date[:date]
     end
 
-    puts "<table>"
+    puts "<table class='table'>"
+    puts "<tbody>"
     dates.each do |date|
       puts "<tr><th>#{date}</th>"
       (1..5).each do |hour|
@@ -76,7 +85,9 @@ EOF3
       end
       puts "</tr>"
     end
+    puts "</tbody>"
     puts "</table>"
+    puts "<p>back to <a href='attends.cgi'>Rollbook</a></p>"
   end
 
   #
@@ -95,7 +106,8 @@ ensure
   print <<EOF
 <hr>
 hkimura, using Racket 6.9 and Ruby #{RUBY_VERSION}.
+</div>
+</body>
+</html>
 EOF
 end
-
-
