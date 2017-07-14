@@ -48,8 +48,9 @@
 
 (define dialog
   (λ (message)
-   (new message% [parent (new dialog% [label "error"])]
-     [label message])))
+    (let* ((D (new dialog% [label "error"][style '(close-button)]))
+           (M (new message% [parent D][label message])))
+      (send D show #t))))
 
 (define attend?
   (λ (user date hour)
@@ -118,5 +119,5 @@ where user=? and date =? and hour =?" user date hour)))
 ;;
 ;; main starts here
 ;;
-(start 30)
+(start 3600)
 (sleep 3)
