@@ -2,7 +2,6 @@
 (require racket/gui/base racket/date db)
 
 (define DEBUG #t)
-
 (define db #f)
 (if DEBUG
     (begin
@@ -10,9 +9,9 @@
       (set! db
             (sqlite3-connect #:database "rollbook.db")))
     (set! db
-          (mysql-connect #:user (getenv "A_USER")
-                         #:password (getenv "A_PASS")
-                         #:database "db"
+          (mysql-connect #:user "rollbook"
+                         #:password "secret"
+                         #:database "admin"
                          #:server "vm2017.local")))
 
 (define get-date
@@ -82,6 +81,10 @@ where user=? and date =? and hour =?" user date hour)))
                         [min-width 400]
                         [min-height 50]))
 
+(define too-short?
+  (λ (m)
+    #f))
+
 (new button% [parent vp]
      [label "on"]
      [callback
@@ -116,10 +119,5 @@ where user=? and date =? and hour =?" user date hour)))
 ;;
 ;; main starts here
 ;;
-
-(start 30)
-
-;;;no keyboard interaction
+(start 3600)
 (sleep 3)
-
-(displayln "finish")
