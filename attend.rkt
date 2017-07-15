@@ -1,10 +1,6 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-;(define db (mysql-connect #:user (getenv "USER")
-;                          #:password (getenv "PASSWORD")
-;                          #:database "admin"
-;                          #:server "vm2017.local"))
 (define debug #f)
 (define db #f)
 (define interval #f)
@@ -20,9 +16,9 @@
           (display "debug mode")))])
   (begin
     (set! db (mysql-connect #:user (getenv "USER")
-                          #:password (getenv "PASSWORD")
-                          #:database "admin"
-                          #:server "vm2017.local"))
+                            #:password (getenv "PASSWORD")
+                            #:database "admin"
+                            #:server "vm2017.local"))
     (set! interval 3600)))
 
 (define get-date
@@ -76,8 +72,8 @@ where user=? and date =? and hour =?" user date hour)))
 (define attend!
   (λ (user date hour message)
     (cond
-     ((zero? hour) (dialog "it's not working time"))
-     ((attend? user date hour) (dialog "already recorded"))
+     ((and (not debug) (zero? hour)) (dialog "it's not working time"))
+     ((and (not debug) (attend? user date hour)) (dialog "already recorded"))
      (else
       (query-exec
        db
