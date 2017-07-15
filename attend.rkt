@@ -2,16 +2,21 @@
 (require racket/gui/base racket/date db)
 
 (define DEBUG #t)
+(define interval 10)
 
 (define db #f)
 (if DEBUG
-    (set! db
+    (begin
+      (set! db
           (sqlite3-connect #:database "rollbook.db"))
-    (set! db
-          (mysql-connect #:user "rollbook"
-                         #:password "secret"
-                         #:database "admin"
-                         #:server "vm2017.local")))
+      (set! interval 10))
+    (begin
+      (set! db
+            (mysql-connect #:user "rollbook"
+                           #:password "secret"
+                           #:database "admin"
+                           #:server "vm2017.local"))
+      (set! interval 3600)))
 
 (define get-date
   (λ ()
