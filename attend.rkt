@@ -2,7 +2,7 @@
 (require racket/gui/base racket/date db)
 
 (define DEBUG #t)
-(define interval 10)
+(define interval 30)
 
 (define db #f)
 (if DEBUG
@@ -12,8 +12,8 @@
       (set! interval 10))
     (begin
       (set! db
-            (mysql-connect #:user "rollbook"
-                           #:password "secret"
+            (mysql-connect #:user (getenv "USER")
+                           #:password (getenv "PASSWORD")
                            #:database "admin"
                            #:server "vm2017.local"))
       (set! interval 3600)))
@@ -87,25 +87,29 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define too-short?
   (λ (m)
-    #f))
+    (< (string-length m) 10)))
 
-(new button% [parent vp]
+(define button
+  (new button% [parent vp]
      [label "on"]
      [callback
       (λ (btn evt)
         (let ((message (send text-field get-value)))
           (if (too-short? message)
-              (dialog "message too short")
+              (dialog
+"メッセージが短すぎ。
+出席は記録されません。
+もっと具体的なメッセージを。")
               (begin
                 (attend! (get-user) (get-date) (get-hour) message)
                 (send text-field set-value "")
-                (send frame iconize #t)))))])
+                (send frame iconize #t)))))]))
 
 (define thd #f)
 
 (define start
   (λ (sec)
-    (displayln "started")
+    ;(displayln "started")
     (set!
      thd
      (thread
@@ -118,10 +122,11 @@ where user=? and date =? and hour =?" user date hour)))
 (define stop
   (λ ()
     (kill-thread thd)
-    (displayln "stopped")))
+    ;(displayln "stopped")
+    ))
 
 ;;
 ;; main starts here
 ;;
-(start 3600)
+(start interval)
 (sleep 3)

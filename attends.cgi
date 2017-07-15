@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/local/bin/ruby
 # coding: utf-8
 require 'sequel'
 require 'cgi'
@@ -19,7 +19,7 @@ crossorigin="anonymous">
 EOH
 
 begin
-  DB = if false
+  DB = if true
         Sequel.sqlite("rollbook.db")
        else
 	Sequel.connect("mysql2://rollbook:#{ENV['APASS']}@localhost/admin")
