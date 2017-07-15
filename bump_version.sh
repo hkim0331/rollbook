@@ -18,5 +18,4 @@ if [ -z ${SED} ]; then
 fi
 
 ${SED} -E -i.bak "s/\(define version \"[0-9.]+\"\)/(define version \"${VERSION}\")/" attend.rkt
-
 ${SED} -E -i.bak "s/VERSION = \"[0-9.]+\"/VERSION = \"${VERSION}\"/" attends.cgi
