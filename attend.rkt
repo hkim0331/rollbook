@@ -1,6 +1,8 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
+(define version "0.2")
+
 (define debug #f)
 (define db #f)
 (define interval #f)
@@ -78,7 +80,8 @@ where user=? and date =? and hour =?" user date hour)))
        "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
        user date hour message)))))
 
-(define frame (new frame% [label "roolbook"]))
+(define frame (new frame%)
+ [label (string-append "roolbook " version)])
 
 (define vp (new vertical-pane% [parent frame]))
 

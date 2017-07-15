@@ -3,6 +3,8 @@
 require 'sequel'
 require 'cgi'
 
+VERSION = "0.2"
+
 print <<EOH
 content-type: text/html
 
@@ -135,7 +137,7 @@ rescue
 ensure
   print <<EOF
 <hr>
-hkimura, using Racket 6.9 and Ruby #{RUBY_VERSION}.
+hkimura, version #{VERSION}.
 </div>
 </body>
 </html>
