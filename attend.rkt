@@ -1,22 +1,25 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-(define DEBUG #t)
-(define interval 30)
-
+(define debug #f)
 (define db #f)
-(if DEBUG
-    (begin
-      (set! db
-          (sqlite3-connect #:database "rollbook.db"))
-      (set! interval 10))
-    (begin
-      (set! db
-            (mysql-connect #:user (getenv "USER")
-                           #:password (getenv "PASSWORD")
-                           #:database "admin"
-                           #:server "vm2017.local"))
-      (set! interval 3600)))
+(define interval #f)
+
+(with-handlers
+    ([exn:fail?
+      (λ (etn)
+        (begin
+          (set! debug #t)
+          (set! db
+                (sqlite3-connect #:database "rollbook.db"))
+          (set! interval 10)
+          (display "debug mode")))])
+  (begin
+    (set! db (mysql-connect #:user (getenv "USER")
+                            #:password (getenv "PASSWORD")
+                            #:database "admin"
+                            #:server "vm2017.local"))
+    (set! interval 3600)))
 
 (define get-date
   (λ ()
@@ -69,12 +72,13 @@ where user=? and date =? and hour =?" user date hour)))
 (define attend!
   (λ (user date hour message)
     (cond
-     ((and (not DEBUG) (zero? hour)) (dialog "it's not working time"))
-     ((and (not DEBUG) (attend? user date hour)) (dialog "already recorded")) ;;dialog2
-     (else (query-exec
-            db
-            "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
-            user date hour message)))))
+     ((and (not debug) (zero? hour)) (dialog "it's not working time"))
+     ((and (not debug) (attend? user date hour)) (dialog "already recorded"))
+     (else
+      (query-exec
+       db
+       "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
+       user date hour message)))))
 
 (define frame (new frame% [label "roolbook"]))
 
@@ -129,4 +133,4 @@ where user=? and date =? and hour =?" user date hour)))
 ;;
 (start interval)
 (sleep 3)
-(thread-wait thd)
+
