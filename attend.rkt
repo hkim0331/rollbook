@@ -97,7 +97,7 @@ where user=? and date =? and hour =?" user date hour)))
         (let ((message (send text-field get-value)))
           (if (too-short? message)
               (dialog
-"メッセージが短すぎ。
+               "メッセージが短すぎ。
 出席は記録されません。
 もっと具体的なメッセージを。")
               (begin
@@ -121,12 +121,12 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define stop
   (λ ()
-    (kill-thread thd)
+    (kill-thread thd)))
     ;(displayln "stopped")
-    ))
 
 ;;
 ;; main starts here
 ;;
 (start interval)
 (sleep 3)
+(thread-wait thd)

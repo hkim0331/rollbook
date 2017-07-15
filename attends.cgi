@@ -12,6 +12,9 @@ content-type: text/html
 href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
 crossorigin="anonymous">
+<style>
+input.s {width: 2em;}
+</style>
 </head>
 <body>
 <div class="container">
@@ -50,14 +53,37 @@ begin
 <input type="hidden" name="cmd" value="show">
 EOF1
     users_all().each do |user|
+      puts "<p>"
       print <<EOF2
 <input type="radio" name="user" value="#{user}">#{user}
 EOF2
     end
+    puts "</p>"
   print <<EOF3
-<p><input type="submit" value="check"></p>
+<p><input type="submit" value="check" class="btn btn-primary"></p>
 </form>
 EOF3
+
+  now = Time.now
+  m = now.month
+  d = now.day
+
+  print <<EOF4
+<form method="post">
+<input type="hidden" name="cmd" value="all-zero">
+<p>
+<input class="s" name="month" value="#{m}">月
+<input class="s" name="day" value="#{d}">日
+</p>
+<p><input type="submit" value="danger" class="btn btn-danger"></p>
+</form>
+EOF4
+  end
+
+  def all_zero(month, day)
+    users_all.each do |user|
+      DB[:rollbook].insert(user: user, date: "#{month}/#{day}", hour: 0, message: "fake")
+    end
   end
 
   def show(user)
@@ -95,8 +121,10 @@ EOF3
   #
   # main starts here
   #
-  if (cgi['cmd'] =~/show/ and cgi['user'])
+  if (cgi['cmd'] =~ /show/ and cgi['user'])
     show(cgi['user'])
+  elsif cgi['cmd'] =~ /all-zero/
+    all_zero(cgi['month'], cgi['day'])
   else
     index()
   end
