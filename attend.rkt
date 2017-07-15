@@ -10,10 +10,9 @@
       (λ (etn)
         (begin
           (set! debug #t)
-          (set! db
-                (sqlite3-connect #:database "rollbook.db"))
-          (set! interval 10)
-          (display "debug mode")))])
+          (display "debug mode, sqlite3.")
+          (set! db (sqlite3-connect #:database "rollbook.db"))
+          (set! interval 30)))])
   (begin
     (set! db (mysql-connect #:user (getenv "USER")
                             #:password (getenv "PASSWORD")
@@ -68,7 +67,6 @@
 where user=? and date =? and hour =?" user date hour)))
       (not (null? answers)))))
 
-;;debug mode?
 (define attend!
   (λ (user date hour message)
     (cond
@@ -113,24 +111,20 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define start
   (λ (sec)
-    ;(displayln "started")
-    (set!
-     thd
-     (thread
-      (λ ()
-        (let loop ()
-          (send frame show #t)
-          (sleep sec)
-          (loop)))))))
+    (set! thd
+          (thread
+           (λ ()
+             (let loop ()
+               (send frame show #t)
+               (sleep sec)
+               (loop)))))))
 
 (define stop
   (λ ()
     (kill-thread thd)))
-    ;(displayln "stopped")
 
 ;;
 ;; main starts here
 ;;
 (start interval)
 (sleep 3)
-
