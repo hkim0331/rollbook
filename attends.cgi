@@ -105,7 +105,7 @@ EOF4
       DB[:assess].insert(user: user, date: date, assess: assess)
       puts "inserted<br>"
     end
-    puts "<p>upserted</p>"
+    puts "<p><a href='/'>back</a></p>"
   end
 
   def show(user)
