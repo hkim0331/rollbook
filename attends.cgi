@@ -29,7 +29,7 @@ begin
   DB = if true
           Sequel.sqlite("rollbook.db")
        else
-	        Sequel.connect("mysql2://rollbook:#{ENV['APASS']}@localhost/admin")
+	 Sequel.connect("mysql2://rollbook:secret@localhost/admin")
        end
   cgi = CGI.new
 
