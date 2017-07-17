@@ -27,9 +27,9 @@ EOH
 
 begin
   DB = if true
-          Sequel.sqlite("rollbook.db")
+         Sequel.sqlite("rollbook.db")
        else
-	 Sequel.connect("mysql2://rollbook:secret@localhost/admin")
+         Sequel.connect("mysql2://rollbook:secret@localhost/admin")
        end
   cgi = CGI.new
 
@@ -96,6 +96,13 @@ EOF5
     end
   end
 
+  def show_message(user,date)
+    puts "<h3>#{user} doing on #{date}</h3>"
+    DB[:rollbook].where(user: user, date:date).order(:hour).each do |row|
+      puts "<p>#{row[:hour]} #{row[:message]}</p>"
+    end
+  end
+
   def assess(user,date)
     row = DB[:assess].where(user: user, date:date).first
     row[:assess]
@@ -116,10 +123,10 @@ EOF5
   end
 
   def show(user)
-    if user.empty?
-      puts "<p class='error'>ユーザを選んでください。</p>"
-      return
-    end
+    # if user.empty?
+    #   puts "<p class='error'>ユーザを選んでください。</p>"
+    #   return
+    # end
     puts "<h2>#{user} records</h2>"
 
     attends = Hash.new()
@@ -141,7 +148,12 @@ EOF5
     puts "<tbody>"
     dates.each do |date|
       unless attends[date].nil?
-        puts "<tr><th>#{date}</th>"
+        print <<EOH
+<tr>
+<th>
+<a href='attends.cgi?cmd=date&user=#{user}&date=#{date}'>#{date}</a>
+</th>
+EOH
         (1..5).each do |hour|
           puts "<td>#{mark(attends[date][hour])}</td>"
         end
@@ -172,6 +184,8 @@ EOF
     all_zero(cgi['month'], cgi['day'])
   elsif cgi['cmd'] =~ /assess/
     upsert_assess(cgi['user'], cgi['date'], cgi['assess'])
+  elsif cgi['cmd'] =~ /date/
+    show_message(cgi['user'], cgi['date'])
   else
     index()
   end
