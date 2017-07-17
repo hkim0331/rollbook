@@ -72,14 +72,10 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define attend!
   (λ (user date hour message)
-    (cond
-     ((and (not debug) (zero? hour)) (dialog "it's not working time"))
-     ((and (not debug) (attend? user date hour)) (dialog "already recorded"))
-     (else
-      (query-exec
+    (query-exec
        db
        "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
-       user date hour message)))))
+       user date hour message)))
 
 (define frame
   (new frame% [label (string-append "roolbook " version)]))
