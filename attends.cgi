@@ -51,35 +51,33 @@ begin
   end
 
   def index()
+    puts "<div class='form-inline'>"
+    users_all().each do |user|
     print <<EOF1
+<div class="form-group">
 <form method="post">
 <input type="hidden" name="cmd" value="show">
-EOF1
-    users_all().each do |user|
-      puts "<p>"
-      print <<EOF2
-<input type="radio" name="user" value="#{user}">#{user}
-EOF2
-    end
-    puts "</p>"
-  print <<EOF3
-<p><input type="submit" value="check" class="btn btn-primary"></p>
+<input class="btn btn-primary" type="submit" name="user" value="#{user}">
 </form>
-EOF3
+</div>
+EOF1
+    end
+    puts "</div>"
 
   now = Time.now
   m = now.month
   d = now.day
 
   print <<EOF4
+<div class="form-inline">
 <form method="post">
 <input type="hidden" name="cmd" value="all-zero">
 <p>
 <input class="s" name="month" value="#{m}">月
 <input class="s" name="day" value="#{d}">日
-</p>
-<p><input type="submit" value="danger" class="btn btn-danger"></p>
+<input type="submit" value="create" class="btn btn-danger"></p>
 </form>
+</div>
 EOF4
   end
 
@@ -133,11 +131,12 @@ EOF4
     puts "<table class='table'>"
     puts "<tbody>"
     dates.each do |date|
-      puts "<tr><th>#{date}</th>"
-      (1..5).each do |hour|
-        puts "<td>#{mark(attends[date][hour])}</td>"
-      end
-      print <<EOF
+      unless attends[date].nil?
+        puts "<tr><th>#{date}</th>"
+        (1..5).each do |hour|
+          puts "<td>#{mark(attends[date][hour])}</td>"
+        end
+        print <<EOF
 <td>
 <form method="post">
 <input type="hidden" name="cmd" value="assess">
@@ -147,6 +146,7 @@ EOF4
 </form>
 </td>
 EOF
+      end
       puts "</tr>"
     end
     puts "</tbody>"
