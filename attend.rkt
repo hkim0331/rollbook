@@ -1,18 +1,27 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-(define DEBUG #t)
+(define version "0.3")
+
+(define debug #f)
 (define db #f)
-(if DEBUG
-    (begin
-      (displayln "sqlite3.")
-      (set! db
-            (sqlite3-connect #:database "rollbook.db")))
-    (set! db
-          (mysql-connect #:user "rollbook"
-                         #:password "secret"
-                         #:database "admin"
-                         #:server "vm2017.local")))
+(define interval #f)
+
+(with-handlers
+    ([exn:fail?
+      (λ (exn)
+        (begin
+          (set! db (sqlite3-connect #:database "rollbook.db"))
+          (set! interval 30)
+          (set! debug #t)
+          (display "debug mode, sqlite3.")))])
+
+  (begin
+    (set! db (mysql-connect #:user (getenv "USER")
+                            #:password (getenv "PASSWORD")
+                            #:database "admin"
+                            #:server "vm2017.local"))
+    (set! interval 3600)))
 
 (define get-date
   (λ ()
@@ -47,10 +56,10 @@
     (getenv "USER")))
 
 (define dialog
-  (new dialog% [label "error"][style '(close-button)]))
-
-(new message% [parent dialog]
-     [label "it's not a working time."])
+  (λ (message)
+    (let* ((D (new dialog% [label "rollbook"][style '(close-button)]))
+           (M (new message% [parent D][label message])))
+      (send D show #t))))
 
 (define attend?
   (λ (user date hour)
@@ -61,18 +70,19 @@
 where user=? and date =? and hour =?" user date hour)))
       (not (null? answers)))))
 
-;;debug mode?
 (define attend!
   (λ (user date hour message)
     (cond
-     ((and (not DEBUG) (zero? hour)) (send dialog show #t)) ;;dialog1
-     ((and (not DEBUG) (attend? user date hour)) (send dialog show #t)) ;;dialog2
-     (else (query-exec
-            db
-            "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
-            user date hour message)))))
+     ((and (not debug) (zero? hour)) (dialog "it's not working time"))
+     ((and (not debug) (attend? user date hour)) (dialog "already recorded"))
+     (else
+      (query-exec
+       db
+       "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
+       user date hour message)))))
 
-(define frame (new frame% [label "roolbook"]))
+(define frame
+  (new frame% [label (string-append "roolbook " version)]))
 
 (define vp (new vertical-pane% [parent frame]))
 
@@ -83,41 +93,43 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define too-short?
   (λ (m)
-    #f))
+    (< (string-length m) 10)))
 
-(new button% [parent vp]
+(define button
+  (new button% [parent vp]
      [label "on"]
      [callback
       (λ (btn evt)
         (let ((message (send text-field get-value)))
           (if (too-short? message)
-              (dialog "message too short")
+              (dialog
+               "メッセージが短すぎ。
+出席は記録されません。
+もっと具体的なメッセージを。")
               (begin
                 (attend! (get-user) (get-date) (get-hour) message)
+                (dialog "記録しました。")
                 (send text-field set-value "")
-                (send frame iconize #t)))))])
+                (send frame iconize #t)))))]))
 
 (define thd #f)
 
 (define start
   (λ (sec)
-    (displayln "started")
-    (set!
-     thd
-     (thread
-      (λ ()
-        (let loop ()
-          (send frame show #t)
-          (sleep sec)
-          (loop)))))))
+    (set! thd
+          (thread
+           (λ ()
+             (let loop ()
+               (send frame show #t)
+               (sleep sec)
+               (loop)))))))
 
 (define stop
   (λ ()
-    (kill-thread thd)
-    (displayln "stopped")))
+    (kill-thread thd)))
 
 ;;
 ;; main starts here
 ;;
-(start 3600)
+(start interval)
 (sleep 3)

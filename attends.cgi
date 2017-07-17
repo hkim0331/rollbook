@@ -1,7 +1,9 @@
-#!/usr/bin/env ruby
+#!/usr/local/bin/ruby
 # coding: utf-8
 require 'sequel'
 require 'cgi'
+
+VERSION = "0.3"
 
 print <<EOH
 content-type: text/html
@@ -12,6 +14,11 @@ content-type: text/html
 href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
 crossorigin="anonymous">
+<style>
+input.s {width: 2em; text-align: center;}
+input.assess {width: 2em; text-align: center;}
+.error {color: red; }
+</style>
 </head>
 <body>
 <div class="container">
@@ -19,17 +26,16 @@ crossorigin="anonymous">
 EOH
 
 begin
-  DB = if false
-        Sequel.sqlite("rollbook.db")
+  DB = if true
+          Sequel.sqlite("rollbook.db")
        else
-	Sequel.connect("mysql2://rollbook:secret@localhost/admin")
+	 Sequel.connect("mysql2://rollbook:secret@localhost/admin")
        end
   cgi = CGI.new
 
   MARK = %w{ ⚫  ◯  }
   def mark(n)
     if n.nil?
-
       ""
     else
       MARK[n]
@@ -45,22 +51,75 @@ begin
   end
 
   def index()
+    puts "<h3>Browse</h3>"
+    puts "<div class='form-inline'>"
+    users_all().each do |user|
     print <<EOF1
+<div class="form-group">
 <form method="post">
 <input type="hidden" name="cmd" value="show">
-EOF1
-    users_all().each do |user|
-      print <<EOF2
-<input type="radio" name="user" value="#{user}">#{user}
-EOF2
-    end
-  print <<EOF3
-<p><input type="submit" value="check"></p>
+<input class="btn btn-primary" type="submit" name="user" value="#{user}">
 </form>
-EOF3
+</div>
+EOF1
+    end
+    puts "</div>"
+
+    puts "<h3>Create empty entry</h3>"
+    now = Time.now
+    m = now.month
+    d = now.day
+    print <<EOF4
+<div class="form-inline">
+<form method="post">
+<input type="hidden" name="cmd" value="all-zero">
+<p>
+<input class="s" name="month" value="#{m}">月
+<input class="s" name="day" value="#{d}">日
+<input type="submit" value="create" class="btn btn-danger"></p>
+</form>
+</div>
+EOF4
+  print <<EOF5
+<h3>Download client</h3>
+<p>macOS only.</p>
+<ul>
+<li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
+<li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
+</ul>
+EOF5
+  end
+
+  def all_zero(month, day)
+    users_all.each do |user|
+      DB[:rollbook].insert(user: user, date: "#{month}/#{day}", hour: 0, message: "fake")
+    end
+  end
+
+  def assess(user,date)
+    row = DB[:assess].where(user: user, date:date).first
+    row[:assess]
+  rescue
+    ' '
+  end
+
+  def upsert_assess(user, date, assess)
+    assess = assess.strip
+    if (DB[:assess].where(user: user, date: date).first)
+      DB[:assess].where(user: user, date: date).update(assess: assess)
+      puts "updated<br>"
+    else
+      DB[:assess].insert(user: user, date: date, assess: assess)
+      puts "inserted<br>"
+    end
+    puts "<p><a href='/'>back</a></p>"
   end
 
   def show(user)
+    if user.empty?
+      puts "<p class='error'>ユーザを選んでください。</p>"
+      return
+    end
     puts "<h2>#{user} records</h2>"
 
     attends = Hash.new()
@@ -81,9 +140,21 @@ EOF3
     puts "<table class='table'>"
     puts "<tbody>"
     dates.each do |date|
-      puts "<tr><th>#{date}</th>"
-      (1..5).each do |hour|
-        puts "<td>#{mark(attends[date][hour])}</td>"
+      unless attends[date].nil?
+        puts "<tr><th>#{date}</th>"
+        (1..5).each do |hour|
+          puts "<td>#{mark(attends[date][hour])}</td>"
+        end
+        print <<EOF
+<td>
+<form method="post">
+<input type="hidden" name="cmd" value="assess">
+<input type="hidden" name="user" value="#{user}">
+<input type="hidden" name="date" value="#{date}">
+<input class="assess" name="assess" value="#{assess(user,date)}">
+</form>
+</td>
+EOF
       end
       puts "</tr>"
     end
@@ -95,8 +166,12 @@ EOF3
   #
   # main starts here
   #
-  if (cgi['cmd'] =~/show/ and cgi['user'])
+  if (cgi['cmd'] =~ /show/ and cgi['user'])
     show(cgi['user'])
+  elsif cgi['cmd'] =~ /all-zero/
+    all_zero(cgi['month'], cgi['day'])
+  elsif cgi['cmd'] =~ /assess/
+    upsert_assess(cgi['user'], cgi['date'], cgi['assess'])
   else
     index()
   end
@@ -107,7 +182,10 @@ rescue
 ensure
   print <<EOF
 <hr>
-hkimura, using Racket 6.9 and Ruby #{RUBY_VERSION}.
+hkimura, version #{VERSION}.
+<a href="https://github.com/hkim0331/rollbook.git">
+https://github.com/hkim0331/rollbook.git
+</a>
 </div>
 </body>
 </html>

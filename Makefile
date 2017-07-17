@@ -26,3 +26,5 @@ server:
 clean:
 	${RM} attend test-thread
 	${RM} -r *.app
+	${RM} *.bak
+
