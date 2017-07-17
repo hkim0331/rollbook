@@ -123,12 +123,7 @@ EOF5
   end
 
   def show(user)
-    # if user.empty?
-    #   puts "<p class='error'>ユーザを選んでください。</p>"
-    #   return
-    # end
     puts "<h2>#{user} records</h2>"
-
     attends = Hash.new()
     DB.fetch("select distinct date, hour from rollbook where user=? order by date, hour", user).each do |row|
       if attends.has_key?(row[:date])
@@ -196,7 +191,7 @@ rescue
 ensure
   print <<EOF
 <hr>
-hkimura, version #{VERSION}, 
+hkimura, version #{VERSION},
 <a href="https://github.com/hkim0331/rollbook.git">
 https://github.com/hkim0331/rollbook.git
 </a>

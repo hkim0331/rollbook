@@ -15,7 +15,6 @@
           (set! interval 30)
           (set! debug #t)
           (display "debug mode, sqlite3.")))])
-
   (begin
     (set! db (mysql-connect #:user (getenv "USER")
                             #:password (getenv "PASSWORD")

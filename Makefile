@@ -11,6 +11,7 @@ all:
 
 install:
 	install -m 0700 attends.cgi server /srv/rollbook
+	sed 's|/usr/local/bin/ruby|/usr/bin/env ruby|' /srv/rollbook/attends.cgi
 	ln -sf /srv/rollbook/attends.cgi /srv/rollbook/index.cgi
 
 create:
@@ -32,4 +33,3 @@ clean:
 	${RM} attend test-thread
 	${RM} -r *.app
 	${RM} *.bak
-
