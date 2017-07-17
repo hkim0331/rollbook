@@ -51,6 +51,7 @@ begin
   end
 
   def index()
+    puts "<h3>Browse</h3>"
     puts "<div class='form-inline'>"
     users_all().each do |user|
     print <<EOF1
@@ -64,11 +65,11 @@ EOF1
     end
     puts "</div>"
 
-  now = Time.now
-  m = now.month
-  d = now.day
-
-  print <<EOF4
+    puts "<h3>Create empty entry</h3>"
+    now = Time.now
+    m = now.month
+    d = now.day
+    print <<EOF4
 <div class="form-inline">
 <form method="post">
 <input type="hidden" name="cmd" value="all-zero">
@@ -79,6 +80,14 @@ EOF1
 </form>
 </div>
 EOF4
+  print <<EOF5
+<h3>Download client</h3>
+<p>macOS only.</p>
+<ul>
+<li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
+<li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
+</ul>
+EOF5
   end
 
   def all_zero(month, day)
