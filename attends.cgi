@@ -3,7 +3,7 @@
 require 'sequel'
 require 'cgi'
 
-VERSION = "0.2"
+VERSION = "0.3"
 
 print <<EOH
 content-type: text/html
