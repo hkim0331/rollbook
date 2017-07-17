@@ -183,6 +183,9 @@ ensure
   print <<EOF
 <hr>
 hkimura, version #{VERSION}.
+<a href="https://github.com/hkim0331/rollbook.git">
+https://github.com/hkim0331/rollbook.git
+</a>
 </div>
 </body>
 </html>
