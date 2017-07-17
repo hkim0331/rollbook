@@ -9,7 +9,7 @@
 
 (with-handlers
     ([exn:fail?
-      (λ (etn)
+      (λ (exn)
         (begin
           (set! debug #t)
           (display "debug mode, sqlite3.")
