@@ -3,7 +3,7 @@
 require 'sequel'
 require 'cgi'
 
-VERSION = "0.3"
+VERSION = "0.4"
 
 print <<EOH
 content-type: text/html
@@ -196,7 +196,7 @@ rescue
 ensure
   print <<EOF
 <hr>
-hkimura, version #{VERSION}.
+hkimura, version #{VERSION}, 
 <a href="https://github.com/hkim0331/rollbook.git">
 https://github.com/hkim0331/rollbook.git
 </a>

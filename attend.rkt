@@ -1,7 +1,7 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-(define version "0.3")
+(define version "0.4")
 
 (define debug #f)
 (define db #f)
