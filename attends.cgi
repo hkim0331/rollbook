@@ -15,7 +15,9 @@ href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
 crossorigin="anonymous">
 <style>
-input.s {width: 2em;}
+input.s {width: 2em; text-align: center;}
+input.assess {width: 2em; text-align: center;}
+.error {color: red; }
 </style>
 </head>
 <body>
@@ -25,16 +27,15 @@ EOH
 
 begin
   DB = if true
-        Sequel.sqlite("rollbook.db")
+          Sequel.sqlite("rollbook.db")
        else
-	Sequel.connect("mysql2://rollbook:#{ENV['APASS']}@localhost/admin")
+	        Sequel.connect("mysql2://rollbook:#{ENV['APASS']}@localhost/admin")
        end
   cgi = CGI.new
 
   MARK = %w{ ⚫  ◯  }
   def mark(n)
     if n.nil?
-
       ""
     else
       MARK[n]
@@ -88,7 +89,30 @@ EOF4
     end
   end
 
+  def assess(user,date)
+    row = DB[:assess].where(user: user, date:date).first
+    row[:assess]
+  rescue
+    ' '
+  end
+
+  def upsert_assess(user, date, assess)
+    assess = assess.strip
+    if (DB[:assess].where(user: user, date: date).first)
+      DB[:assess].where(user: user, date: date).update(assess: assess)
+      puts "updated<br>"
+    else
+      DB[:assess].insert(user: user, date: date, assess: assess)
+      puts "inserted<br>"
+    end
+    puts "<p>upserted</p>"
+  end
+
   def show(user)
+    if user.empty?
+      puts "<p class='error'>ユーザを選んでください。</p>"
+      return
+    end
     puts "<h2>#{user} records</h2>"
 
     attends = Hash.new()
@@ -113,6 +137,16 @@ EOF4
       (1..5).each do |hour|
         puts "<td>#{mark(attends[date][hour])}</td>"
       end
+      print <<EOF
+<td>
+<form method="post">
+<input type="hidden" name="cmd" value="assess">
+<input type="hidden" name="user" value="#{user}">
+<input type="hidden" name="date" value="#{date}">
+<input class="assess" name="assess" value="#{assess(user,date)}">
+</form>
+</td>
+EOF
       puts "</tr>"
     end
     puts "</tbody>"
@@ -127,6 +161,8 @@ EOF4
     show(cgi['user'])
   elsif cgi['cmd'] =~ /all-zero/
     all_zero(cgi['month'], cgi['day'])
+  elsif cgi['cmd'] =~ /assess/
+    upsert_assess(cgi['user'], cgi['date'], cgi['assess'])
   else
     index()
   end

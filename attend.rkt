@@ -11,10 +11,11 @@
     ([exn:fail?
       (λ (exn)
         (begin
-          (set! debug #t)
-          (display "debug mode, sqlite3.")
           (set! db (sqlite3-connect #:database "rollbook.db"))
-          (set! interval 30)))])
+          (set! interval 30)
+          (set! debug #t)
+          (display "debug mode, sqlite3.")))])
+
   (begin
     (set! db (mysql-connect #:user (getenv "USER")
                             #:password (getenv "PASSWORD")
@@ -56,7 +57,7 @@
 
 (define dialog
   (λ (message)
-    (let* ((D (new dialog% [label "error"][style '(close-button)]))
+    (let* ((D (new dialog% [label "rollbook"][style '(close-button)]))
            (M (new message% [parent D][label message])))
       (send D show #t))))
 
@@ -80,8 +81,8 @@ where user=? and date =? and hour =?" user date hour)))
        "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
        user date hour message)))))
 
-(define frame (new frame%)
- [label (string-append "roolbook " version)])
+(define frame
+  (new frame% [label (string-append "roolbook " version)]))
 
 (define vp (new vertical-pane% [parent frame]))
 
@@ -107,6 +108,7 @@ where user=? and date =? and hour =?" user date hour)))
 もっと具体的なメッセージを。")
               (begin
                 (attend! (get-user) (get-date) (get-hour) message)
+                (dialog "記録しました。")
                 (send text-field set-value "")
                 (send frame iconize #t)))))]))
 
