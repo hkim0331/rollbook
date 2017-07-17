@@ -7,6 +7,11 @@ all:
 	@echo make app     -- create attend.app
 	@echo make server  -- start local web server
 	@echo make clean   -- read as is.
+	@echo install      -- install attends.cgi
+
+install:
+  install -m 0700 attends.cgi server /srv/rollbook
+  ln -s /srv/rollbook/attends.cgi /srv/rollbook/index.cgi
 
 create:
 	sqlite3 ${DB} < create.sql
