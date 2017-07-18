@@ -167,7 +167,9 @@ EOF
     end
     puts "</tbody>"
     puts "</table>"
-    puts "<p>back to <a href='attends.cgi'>Rollbook</a></p>"
+    puts "<p>go to <a href='attends.cgi'>Rollbook</a>"
+    puts "|"
+    puts "<a href='https://redmine.melt.kyutech.ac.jp'>redmine</a>"
   end
 
   #

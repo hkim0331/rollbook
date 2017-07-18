@@ -16,7 +16,7 @@
           (set! debug #t)
           (display "debug mode, sqlite3.")))])
   (begin
-    (set! db (mysql-connect #:user (getenv "USER") 
+    (set! db (mysql-connect #:user (getenv "USER")
                             #:password (getenv "PASSWORD")
                             #:database "admin"
                             #:server "vm2017.local"))
@@ -107,6 +107,7 @@ where user=? and date =? and hour =?" user date hour)))
                 (send text-field set-value "")
                 (send frame iconize #t)))))]))
 
+(define last-hour 0)
 (define thd #f)
 
 (define start
@@ -115,7 +116,9 @@ where user=? and date =? and hour =?" user date hour)))
           (thread
            (λ ()
              (let loop ()
-               (send frame show #t)
+               (unless (= last-hour (get-hour))
+                       (send frame show #t)
+                       (set! last-hour (get-hour)))
                (sleep sec)
                (loop)))))))
 
