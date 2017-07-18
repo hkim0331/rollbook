@@ -96,10 +96,14 @@ EOF5
     end
   end
 
-  def show_message(user,date)
+  def utc_to_jst(utc)
+    (utc+9*60*60).to_s.sub(/ \+0900/,"")
+  end
+
+  def show_messages(user,date)
     puts "<h3>#{user} doing on #{date}</h3>"
-    DB[:rollbook].where(user: user, date:date).order(:hour).each do |row|
-      puts "<p>#{row[:hour]} #{row[:message]}</p>"
+    DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
+      puts "<p>#{row[:hour]} #{utc_to_jst(row[:utc])} #{row[:message]}</p>"
     end
   end
 
@@ -182,7 +186,7 @@ EOF
   elsif cgi['cmd'] =~ /assess/
     upsert_assess(cgi['user'], cgi['date'], cgi['assess'])
   elsif cgi['cmd'] =~ /date/
-    show_message(cgi['user'], cgi['date'])
+    show_messages(cgi['user'], cgi['date'])
   else
     index()
   end
