@@ -16,7 +16,7 @@
           (set! debug #t)
           (display "debug mode, sqlite3.")))])
   (begin
-    (set! db (mysql-connect #:user (getenv "USER")
+    (set! db (mysql-connect #:user (getenv "USER") 
                             #:password (getenv "PASSWORD")
                             #:database "admin"
                             #:server "vm2017.local"))
