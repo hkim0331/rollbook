@@ -1,26 +1,24 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-(define version "0.4")
+(define version "0.4.1")
 
 (define debug #f)
 (define db #f)
-(define interval #f)
+(define interval 60)
 
 (with-handlers
     ([exn:fail?
       (λ (exn)
         (begin
           (set! db (sqlite3-connect #:database "rollbook.db"))
-          (set! interval 30)
           (set! debug #t)
           (display "debug mode, sqlite3.")))])
   (begin
     (set! db (mysql-connect #:user (getenv "USER")
                             #:password (getenv "PASSWORD")
                             #:database "admin"
-                            #:server "vm2017.local"))
-    (set! interval 3600)))
+                            #:server "vm2017.local"))))
 
 (define get-date
   (λ ()
