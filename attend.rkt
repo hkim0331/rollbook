@@ -1,7 +1,7 @@
 #lang racket
 (require racket/gui/base racket/date db)
 
-(define version "0.4.1")
+(define version "0.4.2")
 
 (define debug #f)
 (define db #f)
@@ -107,14 +107,13 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define last-hour 0)
 (define thd #f)
-
 (define start
   (λ (sec)
     (set! thd
           (thread
            (λ ()
              (let loop ()
-               (unless (and (= (get-hour) 0) (= last-hour (get-hour)))
+               (unless (= last-hour (get-hour))
                        (send frame show #t)
                        (set! last-hour (get-hour)))
                (sleep sec)
