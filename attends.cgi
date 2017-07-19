@@ -177,7 +177,7 @@ EOF
   end
 
   #
-  # main starts here
+  # main starts here. dispatch.
   #
   if (cgi['cmd'] =~ /show/ and cgi['user'])
     show(cgi['user'])
