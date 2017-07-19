@@ -11,9 +11,18 @@ all:
 
 install:
 	install -m 0700 attends.cgi server /srv/rollbook
-	sed 's|/usr/local/bin/ruby|/usr/bin/env ruby|' /srv/rollbook/attends.cgi
+	sed -i.bak 's|/usr/local/bin/ruby|/usr/bin/env ruby|' /srv/rollbook/attends.cgi
 	ln -sf /srv/rollbook/attends.cgi /srv/rollbook/index.cgi
 
+server:
+	./server --root .
+
+clean:
+	${RM} attend test-thread
+	${RM} -r *.app
+	${RM} *.bak
+
+# develop only
 create:
 	sqlite3 ${DB} < create.sql
 
@@ -23,13 +32,7 @@ drop:
 exe:
 	raco exe attend.rkt
 
+# does not work
 app:
 	raco exe --gui attend.rkt
 
-server:
-	./server --root .
-
-clean:
-	${RM} attend test-thread
-	${RM} -r *.app
-	${RM} *.bak

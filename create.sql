@@ -1,5 +1,5 @@
 create table rollbook (
-    id integer primary key auto_increment,
+    id integer primary key auto_increment, -- 'autoicrement' in sqlite3
     user varchar(20) not null,
     date varchar(10) not null,
     hour integer not null,
@@ -7,7 +7,7 @@ create table rollbook (
     utc datetime default CURRENT_TIMESTAMP);
 
 create table assess (
-  id integer primary key auto_increment,
+  id integer primary key auto_increment, -- 'autoicrement' in sqlite3
   user varchar(20) not null,
   date varchar(10) not null,
   assess char(1) default ' ',

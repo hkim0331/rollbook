@@ -3,8 +3,9 @@
 require 'sequel'
 require 'cgi'
 
-VERSION = "0.4.2"
+DEBUG = true
 
+VERSION = "0.4.2"
 print <<EOH
 content-type: text/html
 
@@ -26,7 +27,7 @@ input.assess {width: 2em; text-align: center;}
 EOH
 
 begin
-  DB = if true
+  DB = if DEBUG
          Sequel.sqlite("rollbook.db")
        else
          Sequel.connect("mysql2://#{ENV['USER']}:#{ENV['PASSWORD']}@localhost/admin")
@@ -92,7 +93,7 @@ EOF5
 
   def all_zero(month, day)
     users_all.each do |user|
-      DB[:rollbook].insert(user: user, date: "#{month}/#{day}", hour: 0, message: "fake")
+      DB[:rollbook].insert(user: user, date: "#{month}/#{day}", hour: 0, message: "", status: 0)
     end
   end
 
