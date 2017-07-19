@@ -3,23 +3,21 @@
 
 (define version "0.4.2")
 
-(define debug #f)
+(define debug #t)
 (define db #f)
 (define interval 60)
 
-;; FIXME
-(with-handlers
-    ([exn:fail?
-      (λ (exn)
-        (begin
+
+(if debug
+    (begin
           (set! db (sqlite3-connect #:database "rollbook.db"))
           (set! debug #t)
-          (display "debug mode, sqlite3.")))])
-  (begin
-    (set! db (mysql-connect #:user (getenv "USER")
-                            #:password (getenv "PASSWORD")
-                            #:database (getenv "DATABASE")
-                            #:server (getenv "SERVER")))))
+          (display "debug mode, sqlite3."))
+    (begin
+      (set! db (mysql-connect #:user (getenv "USER")
+                              #:password (getenv "PASSWORD")
+                              #:database (getenv "DATABASE")
+                              #:server (getenv "SERVER")))))
 
 (define get-date
   (λ ()
