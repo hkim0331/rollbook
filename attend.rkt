@@ -57,6 +57,7 @@
            (M (new message% [parent D][label message])))
       (send D show #t))))
 
+;; not used 
 (define attend?
   (λ (user date hour)
     (let ((answers
@@ -66,6 +67,16 @@
 where user=? and date =? and hour =?" user date hour)))
       (not (null? answers)))))
 
+;; not used
+(define status
+  (λ (user date hour)
+    (let ((answers
+           (query-rows
+            db
+            "select status from rollbook
+where user=? and date =? and hour =?" user date hour)))
+      answers)))
+
 (define attend!
   (λ (user date hour message)
     (query-exec
@@ -73,15 +84,20 @@ where user=? and date =? and hour =?" user date hour)))
        "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
        user date hour message)))
 
+;; GUI parts
 (define frame
-  (new frame% [label (string-append "roolbook " version)]))
+  (new frame% [label (string-append "roolbook " version " " (get-user))]))
 
 (define vp (new vertical-pane% [parent frame]))
+
 
 (define text-field (new text-field% [parent vp]
                         [label ""]
                         [min-width 400]
                         [min-height 50]))
+
+(define redmine (new text-field% [parent vp]
+                        [label "redmine ticket#"]))
 
 (define too-short?
   (λ (m)
@@ -95,9 +111,8 @@ where user=? and date =? and hour =?" user date hour)))
         (let ((message (send text-field get-value)))
           (if (too-short? message)
               (dialog
-               "メッセージが短すぎ。
-出席は記録されません。
-もっと具体的なメッセージを。")
+               "メッセージが短すぎ。出席は記録されない。
+作業の内容を表す具体的なメッセージを。")
               (begin
                 (attend! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
@@ -126,4 +141,4 @@ where user=? and date =? and hour =?" user date hour)))
 ;; main starts here
 ;;
 (start interval)
-(sleep 3)
+(sleep 1)
