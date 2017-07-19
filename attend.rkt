@@ -7,6 +7,7 @@
 (define db #f)
 (define interval 60)
 
+;; FIXME
 (with-handlers
     ([exn:fail?
       (λ (exn)
@@ -15,10 +16,10 @@
           (set! debug #t)
           (display "debug mode, sqlite3.")))])
   (begin
-    (set! db (mysql-connect #:user "rollbook"
-                            #:password "secret"
-                            #:database "admin"
-                            #:server "vm2017.local"))))
+    (set! db (mysql-connect #:user (getenv "USER")
+                            #:password (getenv "PASSWORD")
+                            #:database (getenv "DATABASE")
+                            #:server (getenv "SERVER")))))
 
 (define get-date
   (λ ()
