@@ -57,7 +57,7 @@
            (M (new message% [parent D][label message])))
       (send D show #t))))
 
-;; not used 
+;; not used
 (define attend?
   (λ (user date hour)
     (let ((answers

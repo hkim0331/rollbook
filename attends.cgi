@@ -102,8 +102,9 @@ EOF5
   end
 
   def show_messages(user,date)
-    puts "<h3>#{user} doing on #{date}</h3>"
+    puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
+      next if row[:message] =~ /fake/
       puts "<p>#{row[:hour]} #{utc_to_jst(row[:utc])} #{row[:message]}</p>"
     end
   end
