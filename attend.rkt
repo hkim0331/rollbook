@@ -1,5 +1,6 @@
 #lang racket
 (require racket/gui/base racket/date db)
+(require "info.rkt")
 
 (define version "0.4.2")
 
@@ -7,17 +8,16 @@
 (define db #f)
 (define interval 60)
 
-
 (if debug
     (begin
           (set! db (sqlite3-connect #:database "rollbook.db"))
           (set! debug #t)
           (display "debug mode, sqlite3."))
     (begin
-      (set! db (mysql-connect #:user (getenv "USER")
-                              #:password (getenv "PASSWORD")
-                              #:database (getenv "DATABASE")
-                              #:server (getenv "SERVER")))))
+      (set! db (mysql-connect #:user *user*
+                              #:password *password*
+                              #:database *database*
+                              #:server *server*))))
 
 (define get-date
   (λ ()
@@ -57,7 +57,7 @@
            (M (new message% [parent D][label message])))
       (send D show #t))))
 
-;; not used 
+;; not used
 (define attend?
   (λ (user date hour)
     (let ((answers
@@ -93,7 +93,6 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define text-field (new text-field% [parent vp]
                         [label ""]
-                        [min-width 400]
                         [min-height 50]))
 
 (define redmine (new text-field% [parent vp]
@@ -105,14 +104,15 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define button
   (new button% [parent vp]
-     [label "on"]
+     [label "send"]
      [callback
       (λ (btn evt)
         (let ((message (send text-field get-value)))
           (if (too-short? message)
               (dialog
-               "メッセージが短すぎ。出席は記録されない。
-作業の内容を表す具体的なメッセージを。")
+"メッセージが短すぎ。
+出席は記録されない。
+作業の内容を表す具体的なメッセージ。")
               (begin
                 (attend! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
@@ -141,4 +141,4 @@ where user=? and date =? and hour =?" user date hour)))
 ;; main starts here
 ;;
 (start interval)
-(sleep 1)
+(sleep 3)

@@ -1,11 +1,12 @@
 #!/usr/local/bin/ruby
 # coding: utf-8
+
 require 'sequel'
 require 'cgi'
 
 DEBUG = true
-
 VERSION = "0.4.2"
+
 print <<EOH
 content-type: text/html
 
@@ -34,7 +35,8 @@ begin
        end
   cgi = CGI.new
 
-  MARK = %w{ ⚫  ◯  }
+  MARK = %w{ ⚫  ◯  ▲}
+
   def mark(n)
     if n.nil?
       ""
@@ -102,8 +104,9 @@ EOF5
   end
 
   def show_messages(user,date)
-    puts "<h3>#{user} doing on #{date}</h3>"
+    puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
+      next if row[:message] =~ /fake/
       puts "<p>#{row[:hour]} #{utc_to_jst(row[:utc])} #{row[:message]}</p>"
     end
   end
@@ -129,16 +132,16 @@ EOF5
 
   def show(user)
     puts "<h2>#{user} records</h2>"
-    attends = Hash.new()
-    DB.fetch("select distinct date, hour from rollbook where user=? order by date, hour", user).each do |row|
-      if attends.has_key?(row[:date])
-        attends[row[:date]][row[:hour]] = 1
+    stats = Hash.new()
+    DB.fetch("select distinct date, hour, status from rollbook where user=? order by date, hour", user).each do |row|
+      if stats.has_key?(row[:date])
+        stats[row[:date]][row[:hour]] = row[:status]
       else
-        attends[row[:date]] = [0,0,0,0,0,0]
-        attends[row[:date]][row[:hour]] = 1
+        stats[row[:date]] = [0,0,0,0,0,0]
+        stats[row[:date]][row[:hour]] = row[:status]
       end
     end
-
+#    puts stats
     dates = Array.new
     DB.fetch("select distinct date from rollbook order by date").each do |date|
       dates.push date[:date]
@@ -147,7 +150,7 @@ EOF5
     puts "<table class='table'>"
     puts "<tbody>"
     dates.each do |date|
-      unless attends[date].nil?
+      unless stats[date].nil?
         print <<EOH
 <tr>
 <th>
@@ -155,7 +158,7 @@ EOF5
 </th>
 EOH
         (1..5).each do |hour|
-          puts "<td>#{mark(attends[date][hour])}</td>"
+          puts "<td>#{mark(stats[date][hour])}</td>"
         end
         print <<EOF
 <td>
