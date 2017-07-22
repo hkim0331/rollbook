@@ -6,4 +6,4 @@ roolbook.db
 test/
 !migrations/*.sql
 info.rkt
-
+compiled/

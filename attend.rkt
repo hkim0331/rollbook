@@ -1,12 +1,12 @@
 #lang racket
-(require racket/gui/base racket/date db)
 (require "info.rkt")
+(require racket/gui/base racket/date db)
 
 (define version "0.4.2")
 
 (define debug #t)
 (define db #f)
-(define interval 60)
+(define interval 30)
 
 (if debug
     (begin
@@ -67,22 +67,50 @@
 where user=? and date =? and hour =?" user date hour)))
       (not (null? answers)))))
 
-;; not used
-(define status
+(define attend!
+  (λ (user date hour message)
+    (query-exec
+     db
+     "insert into rollbook (user, date, hour, message, status)
+values (?, ?, ?, ?, 2)"
+     user date hour message)))
+
+;;sqlite mysql differs. use concat in mysql.
+(define update-status!
+  (λ (user date hour message)
+    (query-exec
+     db
+     "update rollbook set status=1, message= ?
+where user=? and date=? and hour=?" message user date hour)))
+
+(define exists?
+  (λ (user date hour)
+    (not (null? (query-rows db "select * from rollbook
+where user=? and date=? and hour=?" user date hour)))))
+
+(define status-time?
   (λ (user date hour)
     (let ((answers
            (query-rows
             db
-            "select status from rollbook
+            "select status, utc from rollbook
 where user=? and date =? and hour =?" user date hour)))
-      answers)))
+      (first answers))))
 
-(define attend!
+;;FIXME
+(define minuts-past?
+  (λ (m time)
+    #t))
+
+(define status!
   (λ (user date hour message)
-    (query-exec
-       db
-       "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
-       user date hour message)))
+    (if (exists? user date hour)
+        (let* ((st (status-time? user date hour))
+           (s (vector-ref st 0))
+           (t (vector-ref st 1)))
+          (when (and (= s 2) (minuts-past? 60 t))
+              (update-status! user date hour message)))
+        (attend! user date hour message))))
 
 ;; GUI parts
 (define frame
@@ -121,6 +149,7 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define last-hour 0)
 (define thd #f)
+
 (define start
   (λ (sec)
     (set! thd
@@ -141,4 +170,4 @@ where user=? and date =? and hour =?" user date hour)))
 ;; main starts here
 ;;
 (start interval)
-(sleep 3)
+(sleep 1)
