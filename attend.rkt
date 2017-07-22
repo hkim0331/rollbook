@@ -169,5 +169,6 @@ where user=? and date =? and hour =?" user date hour)))
 ;;
 ;; main starts here
 ;;
-(start interval)
+;;(start interval)
+(send frame show #t)
 (sleep 1)
