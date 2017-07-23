@@ -6,7 +6,7 @@ require 'cgi'
 require './common.rb'
 
 DEBUG = true
-VERSION = "0.4.2"
+VERSION = "0.5"
 
 print <<EOH
 content-type: text/html
