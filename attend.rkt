@@ -96,22 +96,20 @@ where user=? and date=? and hour=?" user date hour)))))
 where user=? and date =? and hour =?" user date hour)))
       (first answers))))
 
-;;FIXME
-(define minuts-past?
-  (λ (m time)
-    #t))
-
+;; MySQL OK? CURRENT_TIMESTAMP-utc? 
 (define status!
   (λ (user date hour message)
-    (if (exists? user date hour)
-        (let* ((stm (status-time-message? user date hour))
-               (s (vector-ref stm 0))
-               (t (vector-ref stm 1))
-               (m (vector-ref stm 2))
-               (mm (string-append m " " message)))
-          (when (and (= s 2) (minuts-past? 60 t))
-              (update-status! user date hour mm)))
-        (attend! user date hour message))))
+    (let ((result
+           (query-maybe-row
+            db
+            "select status, message, CURRENT_TIMESTAMP - utc from rollbook where user=? and date=? and hour=?" user date hour)))
+      (if result
+          (let* ((st (vector-ref result 0))
+                 (msg (vector-ref result 1))
+                 (min (vector-ref result 2)))
+            (when (and (= st 2) (or (= 0 min) (< 3600 min))) ; = 0 for sqlite3
+              (update-status! user date hour (string-aopend msg " " message))))
+        (attend! user date hour message)))))
 
 ;; GUI parts
 (define frame
@@ -172,4 +170,4 @@ where user=? and date =? and hour =?" user date hour)))
 ;;
 ;;(start interval)
 (send frame show #t)
-(sleep 1)
+;;(sleep 2)
