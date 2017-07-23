@@ -10,9 +10,8 @@
 
 (if debug
     (begin
-          (set! db (sqlite3-connect #:database "rollbook.db"))
-          (set! debug #t)
-          (display "debug mode, sqlite3."))
+      (set! db (sqlite3-connect #:database "rollbook.db"))
+      (display "debug mode, sqlite3."))
     (begin
       (set! db (mysql-connect #:user *user*
                               #:password *password*
@@ -88,12 +87,12 @@ where user=? and date=? and hour=?" message user date hour)))
     (not (null? (query-rows db "select * from rollbook
 where user=? and date=? and hour=?" user date hour)))))
 
-(define status-time?
+(define status-time-message?
   (λ (user date hour)
     (let ((answers
            (query-rows
             db
-            "select status, utc from rollbook
+            "select status, utc, message from rollbook
 where user=? and date =? and hour =?" user date hour)))
       (first answers))))
 
@@ -105,11 +104,13 @@ where user=? and date =? and hour =?" user date hour)))
 (define status!
   (λ (user date hour message)
     (if (exists? user date hour)
-        (let* ((st (status-time? user date hour))
-           (s (vector-ref st 0))
-           (t (vector-ref st 1)))
+        (let* ((stm (status-time-message? user date hour))
+               (s (vector-ref stm 0))
+               (t (vector-ref stm 1))
+               (m (vector-ref stm 3))
+               (mm (string-append m " " message)))
           (when (and (= s 2) (minuts-past? 60 t))
-              (update-status! user date hour message)))
+              (update-status! user date hour mm)))
         (attend! user date hour message))))
 
 ;; GUI parts
@@ -142,7 +143,7 @@ where user=? and date =? and hour =?" user date hour)))
 出席は記録されない。
 作業の内容を表す具体的なメッセージ。")
               (begin
-                (attend! (get-user) (get-date) (get-hour) message)
+                (status! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
                 (send text-field set-value "")
                 (send frame iconize #t)))))]))
