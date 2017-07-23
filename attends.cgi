@@ -1,11 +1,13 @@
 #!/usr/local/bin/ruby
 # coding: utf-8
+
 require 'sequel'
 require 'cgi'
+require './common.rb'
 
 DEBUG = true
-
 VERSION = "0.4.2"
+
 print <<EOH
 content-type: text/html
 
@@ -30,11 +32,12 @@ begin
   DB = if DEBUG
          Sequel.sqlite("rollbook.db")
        else
-         Sequel.connect("mysql2://#{ENV['USER']}:#{ENV['PASSWORD']}@localhost/admin")
+         Sequel.connect("mysql2://#{USER}:#{PASSWORD}@localhost/admin")
        end
   cgi = CGI.new
 
-  MARK = %w{ ⚫  ◯  }
+  MARK = %w{ ⚫  ◯  ▲}
+
   def mark(n)
     if n.nil?
       ""
@@ -55,22 +58,31 @@ begin
     puts "<h3>Browse</h3>"
     puts "<div class='form-inline'>"
     users_all().each do |user|
-    print <<EOF1
+    print <<BROWSE
 <div class="form-group">
 <form method="post">
 <input type="hidden" name="cmd" value="show">
 <input class="btn btn-primary" type="submit" name="user" value="#{user}">
 </form>
 </div>
-EOF1
+BROWSE
     end
     puts "</div>"
 
-    puts "<h3>Create empty entry</h3>"
+    print <<DOWNLOAD
+<h3>Download client</h3>
+<p>macOS only.</p>
+<ul>
+<li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
+<li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
+</ul>
+DOWNLOAD
+
+    puts "<h3>Create empty entry (not for students)</h3>"
     now = Time.now
     m = now.month
     d = now.day
-    print <<EOF4
+    print <<CREATE
 <div class="form-inline">
 <form method="post">
 <input type="hidden" name="cmd" value="all-zero">
@@ -80,15 +92,7 @@ EOF1
 <input type="submit" value="create" class="btn btn-danger"></p>
 </form>
 </div>
-EOF4
-  print <<EOF5
-<h3>Download client</h3>
-<p>macOS only.</p>
-<ul>
-<li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
-<li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
-</ul>
-EOF5
+CREATE
   end
 
   def all_zero(month, day)
@@ -130,16 +134,16 @@ EOF5
 
   def show(user)
     puts "<h2>#{user} records</h2>"
-    attends = Hash.new()
-    DB.fetch("select distinct date, hour from rollbook where user=? order by date, hour", user).each do |row|
-      if attends.has_key?(row[:date])
-        attends[row[:date]][row[:hour]] = 1
+    stats = Hash.new()
+    DB.fetch("select distinct date, hour, status from rollbook where user=? order by date, hour", user).each do |row|
+      if stats.has_key?(row[:date])
+        stats[row[:date]][row[:hour]] = row[:status]
       else
-        attends[row[:date]] = [0,0,0,0,0,0]
-        attends[row[:date]][row[:hour]] = 1
+        stats[row[:date]] = [0,0,0,0,0,0]
+        stats[row[:date]][row[:hour]] = row[:status]
       end
     end
-
+#    puts stats
     dates = Array.new
     DB.fetch("select distinct date from rollbook order by date").each do |date|
       dates.push date[:date]
@@ -148,7 +152,7 @@ EOF5
     puts "<table class='table'>"
     puts "<tbody>"
     dates.each do |date|
-      unless attends[date].nil?
+      unless stats[date].nil?
         print <<EOH
 <tr>
 <th>
@@ -156,7 +160,7 @@ EOF5
 </th>
 EOH
         (1..5).each do |hour|
-          puts "<td>#{mark(attends[date][hour])}</td>"
+          puts "<td>#{mark(stats[date][hour])}</td>"
         end
         print <<EOF
 <td>

@@ -1,23 +1,22 @@
 #lang racket
+(require "common.rkt")
 (require racket/gui/base racket/date db)
 
 (define version "0.4.2")
 
 (define debug #t)
 (define db #f)
-(define interval 60)
-
+(define interval 30)
 
 (if debug
     (begin
-          (set! db (sqlite3-connect #:database "rollbook.db"))
-          (set! debug #t)
-          (display "debug mode, sqlite3."))
+      (set! db (sqlite3-connect #:database "rollbook.db"))
+      (display "debug mode, sqlite3."))
     (begin
-      (set! db (mysql-connect #:user (getenv "USER")
-                              #:password (getenv "PASSWORD")
-                              #:database (getenv "DATABASE")
-                              #:server (getenv "SERVER")))))
+      (set! db (mysql-connect #:user *user*
+                              #:password *password*
+                              #:database *database*
+                              #:server *server*))))
 
 (define get-date
   (λ ()
@@ -67,22 +66,50 @@
 where user=? and date =? and hour =?" user date hour)))
       (not (null? answers)))))
 
-;; not used
-(define status
+(define attend!
+  (λ (user date hour message)
+    (query-exec
+     db
+     "insert into rollbook (user, date, hour, message, status)
+values (?, ?, ?, ?, 2)"
+     user date hour message)))
+
+;;sqlite mysql differs. use concat in mysql.
+(define update-status!
+  (λ (user date hour message)
+    (query-exec
+     db
+     "update rollbook set status=1, message= ?
+where user=? and date=? and hour=?" message user date hour)))
+
+(define exists?
+  (λ (user date hour)
+    (not (null? (query-rows db "select * from rollbook
+where user=? and date=? and hour=?" user date hour)))))
+
+(define status-time-message?
   (λ (user date hour)
     (let ((answers
            (query-rows
             db
-            "select status from rollbook
+            "select status, utc, message from rollbook
 where user=? and date =? and hour =?" user date hour)))
-      answers)))
+      (first answers))))
 
-(define attend!
+;; MySQL OK? CURRENT_TIMESTAMP-utc? 
+(define status!
   (λ (user date hour message)
-    (query-exec
-       db
-       "insert into rollbook (user, date, hour, message) values (?, ?, ?, ?)"
-       user date hour message)))
+    (let ((result
+           (query-maybe-row
+            db
+            "select status, message, CURRENT_TIMESTAMP - utc from rollbook where user=? and date=? and hour=?" user date hour)))
+      (if result
+          (let* ((st (vector-ref result 0))
+                 (msg (vector-ref result 1))
+                 (min (vector-ref result 2)))
+            (when (and (= st 2) (or (= 0 min) (< 3600 min))) ; = 0 for sqlite3
+              (update-status! user date hour (string-aopend msg " " message))))
+        (attend! user date hour message)))))
 
 ;; GUI parts
 (define frame
@@ -93,7 +120,6 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define text-field (new text-field% [parent vp]
                         [label ""]
-                        [min-width 400]
                         [min-height 50]))
 
 (define redmine (new text-field% [parent vp]
@@ -105,22 +131,24 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define button
   (new button% [parent vp]
-     [label "on"]
+     [label "send"]
      [callback
       (λ (btn evt)
         (let ((message (send text-field get-value)))
           (if (too-short? message)
               (dialog
-               "メッセージが短すぎ。出席は記録されない。
-作業の内容を表す具体的なメッセージを。")
+"メッセージが短すぎ。
+出席は記録されない。
+作業の内容を表す具体的なメッセージ。")
               (begin
-                (attend! (get-user) (get-date) (get-hour) message)
+                (status! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
                 (send text-field set-value "")
                 (send frame iconize #t)))))]))
 
 (define last-hour 0)
 (define thd #f)
+
 (define start
   (λ (sec)
     (set! thd
@@ -140,5 +168,6 @@ where user=? and date =? and hour =?" user date hour)))
 ;;
 ;; main starts here
 ;;
-(start interval)
-(sleep 1)
+;;(start interval)
+(send frame show #t)
+;;(sleep 2)
