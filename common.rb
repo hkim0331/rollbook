@@ -1,3 +1,3 @@
-DEBUG = true
+DEBUG = false
 USER = "rollbook"
 PASSWORD =  "secret"

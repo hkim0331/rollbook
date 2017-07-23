@@ -7,7 +7,8 @@
          *server*
 )
 
-(define *debug* #t)
+(define *debug* #f)
+
 (define *user* "rollbook")
 (define *password* "secret")
 (define *database* "admin")

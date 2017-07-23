@@ -5,7 +5,6 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-DEBUG = true
 VERSION = "0.5"
 
 print <<EOH

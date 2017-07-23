@@ -4,9 +4,7 @@
 
 (define version "0.5")
 
-(define debug #t)
 (define db #f)
-(define interval 30)
 
 (if debug
     (begin
@@ -96,7 +94,7 @@ where user=? and date=? and hour=?" user date hour)))))
 where user=? and date =? and hour =?" user date hour)))
       (first answers))))
 
-;; MySQL OK? CURRENT_TIMESTAMP-utc? 
+;; MySQL OK? CURRENT_TIMESTAMP-utc?
 (define status!
   (λ (user date hour message)
     (let ((result
