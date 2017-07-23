@@ -1,5 +1,5 @@
 #lang racket
-(require "info.rkt")
+(require "common.rkt")
 (require racket/gui/base racket/date db)
 
 (define version "0.4.2")

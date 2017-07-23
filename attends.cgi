@@ -3,6 +3,7 @@
 
 require 'sequel'
 require 'cgi'
+require './common.rb'
 
 DEBUG = true
 VERSION = "0.4.2"
@@ -31,7 +32,7 @@ begin
   DB = if DEBUG
          Sequel.sqlite("rollbook.db")
        else
-         Sequel.connect("mysql2://#{ENV['USER']}:#{ENV['PASSWORD']}@localhost/admin")
+         Sequel.connect("mysql2://#{USER}:#{PASSWORD}@localhost/admin")
        end
   cgi = CGI.new
 
