@@ -4,10 +4,10 @@
          *user*
          *password*
          *database*
-         *server*
-)
+         *server*)
 
-(define *debug* #f)
+
+(define *debug* #t)
 
 (define *user* "rollbook")
 (define *password* "secret")

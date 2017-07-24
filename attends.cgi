@@ -77,7 +77,7 @@ BROWSE
 </ul>
 DOWNLOAD
 
-    puts "<h3>Create empty entry (not for students)</h3>"
+    puts "<h3>Create empty entries (not for students)</h3>"
     now = Time.now
     m = now.month
     d = now.day
@@ -101,15 +101,19 @@ CREATE
   end
 
   # Timezone of mysql is vm2017's timezone.
-  # def utc_to_jst(utc)
-  #   (utc+9*60*60).to_s.sub(/ \+0900/,"")
-  # end
+  # in sequel, utc.
+  def adjust(time)
+    if DEBUG
+      time += 9*60*60
+    end
+    time.to_s.sub(/ \+0900/,"")
+  end
 
   def show_messages(user,date)
     puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
       next if row[:message] =~ /fake/
-      puts "<p>#{row[:hour]} #{row[:utc].to_s.sub(/ \+900/,"")} #{row[:message]}</p>"
+      puts "<p>#{row[:hour]} #{adjust(row[:utc])} #{row[:message]}</p>"
     end
   end
 
@@ -135,7 +139,7 @@ CREATE
   def show(user)
     puts "<h2>#{user} records</h2>"
     stats = Hash.new()
-    DB.fetch("select distinct date, hour, status from rollbook where user=? order by date, hour", user).each do |row|
+    DB[:rollbook].distinct.select(:date,:hour,:status).where('user=?',user).each do |row|
       if stats.has_key?(row[:date])
         stats[row[:date]][row[:hour]] = row[:status]
       else
@@ -143,9 +147,9 @@ CREATE
         stats[row[:date]][row[:hour]] = row[:status]
       end
     end
-#    puts stats
+
     dates = Array.new
-    DB.fetch("select distinct date from rollbook order by date").each do |date|
+    DB[:rollbook].distinct.select(:date).reverse(:date).each do |date|
       dates.push date[:date]
     end
 
