@@ -71,7 +71,7 @@ BROWSE
 
     print <<DOWNLOAD
 <h3>Download client</h3>
-<p>macOS only.</p>
+<p>macOS only.最新 0.5.3 はアイコン化せずに終了する。</p>
 <ul>
 <li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
 <li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
