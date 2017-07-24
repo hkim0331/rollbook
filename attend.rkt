@@ -118,14 +118,19 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define text-field (new text-field% [parent vp]
                         [label ""]
+                        [min-width 300]
                         [min-height 50]))
 
-(define redmine (new text-field% [parent vp]
-                        [label "redmine ticket#"]))
+;(define redmine (new text-field% [parent vp]
+;                        [label "redmine ticket#"]))
 
 (define too-short?
   (λ (m)
     (< (string-length m) 10)))
+
+(define redmine?
+  (λ (m)
+    (regexp-match #rx"^#[0-9]+$" m)))
 
 (define button
   (new button% [parent vp]
@@ -133,7 +138,7 @@ where user=? and date =? and hour =?" user date hour)))
      [callback
       (λ (btn evt)
         (let ((message (send text-field get-value)))
-          (if (too-short? message)
+          (if (and (not (redmine? message)) (too-short? message))
               (dialog
 "メッセージが短すぎ。
 出席は記録されない。
