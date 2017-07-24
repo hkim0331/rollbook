@@ -5,7 +5,7 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-VERSION = "0.5"
+VERSION = "0.5.2"
 
 print <<EOH
 content-type: text/html
@@ -100,6 +100,7 @@ CREATE
     end
   end
 
+  # Timezone of mysql is vm2017's timezone.
   def utc_to_jst(utc)
     (utc+9*60*60).to_s.sub(/ \+0900/,"")
   end
@@ -108,7 +109,7 @@ CREATE
     puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
       next if row[:message] =~ /fake/
-      puts "<p>#{row[:hour]} #{utc_to_jst(row[:utc])} #{row[:message]}</p>"
+      puts "<p>#{row[:hour]} #{utc.to_s.sub(/ \+900/,"")} #{row[:message]}</p>"
     end
   end
 
