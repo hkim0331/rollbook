@@ -5,5 +5,6 @@ roolbook.db
 !drop.sql
 test/
 !migrations/*.sql
-info.rkt
 compiled/
+common.rb
+common.rkt
