@@ -101,15 +101,15 @@ CREATE
   end
 
   # Timezone of mysql is vm2017's timezone.
-  def utc_to_jst(utc)
-    (utc+9*60*60).to_s.sub(/ \+0900/,"")
-  end
+  # def utc_to_jst(utc)
+  #   (utc+9*60*60).to_s.sub(/ \+0900/,"")
+  # end
 
   def show_messages(user,date)
     puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
       next if row[:message] =~ /fake/
-      puts "<p>#{row[:hour]} #{utc.to_s.sub(/ \+900/,"")} #{row[:message]}</p>"
+      puts "<p>#{row[:hour]} #{row[:utc].to_s.sub(/ \+900/,"")} #{row[:message]}</p>"
     end
   end
 
