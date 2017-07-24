@@ -5,7 +5,7 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-VERSION = "0.5.2"
+VERSION = "0.5.3"
 
 print <<EOH
 content-type: text/html
