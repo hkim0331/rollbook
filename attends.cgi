@@ -6,6 +6,7 @@ require 'cgi'
 require './common.rb'
 
 VERSION = "0.5.3"
+REDMINE = "https://redmine.melt.kyutech.ac.jp"
 
 print <<EOH
 content-type: text/html
@@ -100,8 +101,8 @@ CREATE
     end
   end
 
-  # Timezone of mysql is vm2017's timezone.
-  # in sequel, utc.
+  # Timezone of mysql is vm2017's timezone, JST.
+  # in sequel, UTC.
   def adjust(time)
     if DEBUG
       time += 9*60*60
@@ -109,11 +110,20 @@ CREATE
     time.to_s.sub(/ \+0900/,"")
   end
 
+  def redmine_tag(s)
+    s.gsub(/#(\d+)/, "<a href='#{REDMINE}/issues/\\1'>#\\1</a>")
+  end
+
   def show_messages(user,date)
     puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
-      next if row[:message] =~ /fake/
-      puts "<p>#{row[:hour]} #{adjust(row[:utc])} #{row[:message]}</p>"
+      unless row[:message] =~ /fake/
+        print <<EOL
+<p>
+#{row[:hour]} #{adjust(row[:utc])} #{redmine_tag(row[:message])}
+</p>
+EOL
+      end
     end
   end
 
