@@ -5,7 +5,7 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-VERSION = "0.5.3"
+VERSION = "0.5.4"
 REDMINE = "https://redmine.melt.kyutech.ac.jp"
 
 print <<EOH
@@ -26,6 +26,10 @@ input.assess {width: 2em; text-align: center;}
 <body>
 <div class="container">
 <h1>Rollbook</h1>
+<p>
+前向きな勉学を期待して。しかし「出席取ればいいんだろう」か、やっぱり。
+やっていることはそれでいいのか？
+</p>
 EOH
 
 begin
@@ -71,7 +75,7 @@ BROWSE
 
     print <<DOWNLOAD
 <h3>Download client</h3>
-<p>macOS only.最新 0.5.3 はアイコン化せずに終了する。</p>
+<p>macOS only. 最新は #{VERSION}。</p>
 <ul>
 <li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
 <li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>

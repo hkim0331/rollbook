@@ -2,7 +2,7 @@
 (require "common.rkt")
 (require racket/gui/base racket/date db)
 
-(define version "0.5.3")
+(define version "0.5.4")
 
 (define db #f)
 
@@ -138,11 +138,13 @@ where user=? and date =? and hour =?" user date hour)))
      [callback
       (λ (btn evt)
         (let ((message (send text-field get-value)))
-          (if (and (not (redmine? message)) (too-short? message))
+          (if (not (redmine? message))
               (dialog
-"メッセージが短すぎ。
-出席は記録されない。
-作業の内容を表す具体的なメッセージ。")
+"redmine のチケット番号を # に続いて入力すること。
+チケット番号入力しても、
+何回か連続して同じチケットだったら、
+あるいは何枚かのチケット使い回すようだったら、
+下らんヤツとして出席受け付けないようにする。")
               (begin
                 (status! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")

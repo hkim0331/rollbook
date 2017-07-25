@@ -15,7 +15,7 @@ install:
 	ln -sf /srv/rollbook/attends.cgi /srv/rollbook/index.cgi
 
 server:
-	./server --root .
+	./server --root . --port 3000
 
 clean:
 	${RM} attend test-thread
