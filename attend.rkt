@@ -6,7 +6,7 @@
 
 (define db #f)
 
-(if debug
+(if *debug*
     (begin
       (set! db (sqlite3-connect #:database "rollbook.db"))
       (display "debug mode, sqlite3."))
@@ -106,7 +106,7 @@ where user=? and date =? and hour =?" user date hour)))
                  (msg (vector-ref result 1))
                  (min (vector-ref result 2)))
             (when (and (= st 2) (or (= 0 min) (< 3600 min))) ; = 0 for sqlite3
-              (update-status! user date hour (string-aopend msg " " message))))
+              (update-status! user date hour (string-append msg " " message))))
         (attend! user date hour message)))))
 
 ;; GUI parts
