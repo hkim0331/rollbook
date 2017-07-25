@@ -5,7 +5,8 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-VERSION = "0.5"
+VERSION = "0.5.3"
+REDMINE = "https://redmine.melt.kyutech.ac.jp"
 
 print <<EOH
 content-type: text/html
@@ -70,14 +71,14 @@ BROWSE
 
     print <<DOWNLOAD
 <h3>Download client</h3>
-<p>macOS only.</p>
+<p>macOS only.最新 0.5.3 はアイコン化せずに終了する。</p>
 <ul>
 <li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
 <li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
 </ul>
 DOWNLOAD
 
-    puts "<h3>Create empty entry (not for students)</h3>"
+    puts "<h3>Create empty entries (not for students)</h3>"
     now = Time.now
     m = now.month
     d = now.day
@@ -100,15 +101,29 @@ CREATE
     end
   end
 
-  def utc_to_jst(utc)
-    (utc+9*60*60).to_s.sub(/ \+0900/,"")
+  # Timezone of mysql is vm2017's timezone, JST.
+  # in sequel, UTC.
+  def adjust(time)
+    if DEBUG
+      time += 9*60*60
+    end
+    time.to_s.sub(/ \+0900/,"")
+  end
+
+  def redmine_tag(s)
+    s.gsub(/#(\d+)/, "<a href='#{REDMINE}/issues/\\1'>#\\1</a>")
   end
 
   def show_messages(user,date)
     puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
-      next if row[:message] =~ /fake/
-      puts "<p>#{row[:hour]} #{utc_to_jst(row[:utc])} #{row[:message]}</p>"
+      unless row[:message] =~ /fake/
+        print <<EOL
+<p>
+#{row[:hour]} #{adjust(row[:utc])} #{redmine_tag(row[:message])}
+</p>
+EOL
+      end
     end
   end
 
@@ -134,7 +149,7 @@ CREATE
   def show(user)
     puts "<h2>#{user} records</h2>"
     stats = Hash.new()
-    DB.fetch("select distinct date, hour, status from rollbook where user=? order by date, hour", user).each do |row|
+    DB[:rollbook].distinct.select(:date,:hour,:status).where('user=?',user).each do |row|
       if stats.has_key?(row[:date])
         stats[row[:date]][row[:hour]] = row[:status]
       else
@@ -142,9 +157,9 @@ CREATE
         stats[row[:date]][row[:hour]] = row[:status]
       end
     end
-#    puts stats
+
     dates = Array.new
-    DB.fetch("select distinct date from rollbook order by date").each do |date|
+    DB[:rollbook].distinct.select(:date).reverse(:date).each do |date|
       dates.push date[:date]
     end
 
