@@ -27,7 +27,7 @@ input.assess {width: 2em; text-align: center;}
 <div class="container">
 <h1>Rollbook</h1>
 <p>
-前向きな勉学を期待して。しかし「出席取ればいいんだろう」か、やっぱり。
+「出席取ればいいんだろう」か、やっぱり。
 やっていることはそれでいいのか？
 </p>
 EOH
