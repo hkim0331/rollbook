@@ -105,11 +105,9 @@ CREATE
   end
 
   # Timezone of mysql is vm2017's timezone, JST.
-  # in sequel, UTC.
+  # in sqlite3, UTC.
   def adjust(time)
-    if DEBUG
-      time += 9*60*60
-    end
+    time += 9*60*60 if DEBUG
     time.to_s.sub(/ \+0900/,"")
   end
 

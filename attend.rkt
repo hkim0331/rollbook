@@ -55,14 +55,14 @@
       (send D show #t))))
 
 ;; not used
-(define attend?
-  (λ (user date hour)
-    (let ((answers
-           (query-rows
-            db
-            "select * from rollbook
-where user=? and date =? and hour =?" user date hour)))
-      (not (null? answers)))))
+;(define attend?
+;  (λ (user date hour)
+;    (let ((answers
+;           (query-rows
+;            db
+;            "select * from rollbook
+;where user=? and date =? and hour =?" user date hour)))
+;      (not (null? answers)))))
 
 (define attend!
   (λ (user date hour message)
@@ -141,14 +141,11 @@ where user=? and date =? and hour =?" user date hour)))
           (if (not (redmine? message))
               (dialog
 "redmine のチケット番号を # に続いて入力すること。
-チケット番号入力しても、
-何回か連続して同じチケットだったら、
-下らんヤツとして出席受け付けないようにする。")
+何回か連続して同じチケット番号だったら、
+下らんヤツとして受け付けないようになる。")
               (begin
                 (status! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
-                (send text-field set-value "")
-                (send frame iconize #t)
                 (send frame show #f)
                 ))))]))
 
