@@ -140,17 +140,16 @@ where user=? and date =? and hour =?" user date hour)))
         (let ((message (send text-field get-value)))
           (if (not (redmine? message))
               (dialog
-"redmine のチケット番号を # に続いて入力すること。
+               "redmine のチケット番号を # に続いて入力すること。
 何回か連続して同じチケット番号だったら、
 下らんヤツとして受け付けないようになる。")
               (begin
                 (status! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
-                (send frame show #f)
-                ))))]))
+                (send frame show #f)))))]))
+
 
 ;;
 ;; main starts here
 ;;
 (send frame show #t)
-

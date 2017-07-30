@@ -38,7 +38,6 @@ begin
        else
          Sequel.connect("mysql2://#{USER}:#{PASSWORD}@localhost/admin")
        end
-  cgi = CGI.new
 
   MARK = %w{ ⚫  ◯  ▲}
 
@@ -201,6 +200,7 @@ EOF
   #
   # main starts here. dispatch.
   #
+  cgi = CGI.new
   if (cgi['cmd'] =~ /show/ and cgi['user'])
     show(cgi['user'])
   elsif cgi['cmd'] =~ /all-zero/
