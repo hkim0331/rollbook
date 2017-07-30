@@ -72,7 +72,6 @@ begin
 BROWSE
     end
     puts "</div>"
-
     print <<DOWNLOAD
 <h3>Download client</h3>
 <p>macOS only. 最新は #{VERSION}。</p>
@@ -153,8 +152,9 @@ EOL
   def show(user)
     puts "<h2>#{user} records</h2>"
     stats = Hash.new()
-    DB[:rollbook].distinct.select(:date,:hour,:status).where('user=?',user).each do |row|
-      if stats.has_key?(row[:date])
+    DB[:rollbook].distinct.select(:date,:hour,:status).
+      where("user = ?", user).each do |row|
+    if stats.has_key?(row[:date])
         stats[row[:date]][row[:hour]] = row[:status]
       else
         stats[row[:date]] = [0,0,0,0,0,0]

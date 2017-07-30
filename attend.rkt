@@ -143,38 +143,17 @@ where user=? and date =? and hour =?" user date hour)))
 "redmine のチケット番号を # に続いて入力すること。
 チケット番号入力しても、
 何回か連続して同じチケットだったら、
-あるいは何枚かのチケット使い回すようだったら、
 下らんヤツとして出席受け付けないようにする。")
               (begin
                 (status! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
-;                (send text-field set-value "")
-;                (send frame iconize #t)
+                (send text-field set-value "")
+                (send frame iconize #t)
                 (send frame show #f)
                 ))))]))
-
-(define last-hour 0)
-(define thd #f)
-
-(define start
-  (λ (sec)
-    (set! thd
-          (thread
-           (λ ()
-             (let loop ()
-               (unless (= last-hour (get-hour))
-                       (send frame show #t)
-                       (set! last-hour (get-hour)))
-               (sleep sec)
-               (loop)))))))
-
-(define stop
-  (λ ()
-    (kill-thread thd)))
 
 ;;
 ;; main starts here
 ;;
-;;(start interval)
 (send frame show #t)
-;;(sleep 2)
+
