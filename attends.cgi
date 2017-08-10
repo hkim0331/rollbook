@@ -27,8 +27,7 @@ input.assess {width: 2em; text-align: center;}
 <div class="container">
 <h1>Rollbook</h1>
 <p>
-「出席取ればいいんだろう」か、やっぱり。
-やっていることはそれでいいのか？
+「出席取ればいいんだろう」か？ やってることはそれでいいの？
 </p>
 EOH
 
@@ -75,8 +74,7 @@ BROWSE
 <h3>Download client</h3>
 <p>macOS only. 最新は #{VERSION}。</p>
 <ul>
-<li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
-<li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
+<li><a href="bin/6.10/attend">for Racket 6.10 users</a></li>
 </ul>
 DOWNLOAD
 
@@ -117,7 +115,7 @@ CREATE
   def show_messages(user,date)
     puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
-      unless row[:message] =~ /fake/
+      unless (row[:message].empty? or row[:message] =~ /fake/)
         print <<EOL
 <p>
 #{row[:hour]} #{adjust(row[:utc])} #{redmine_tag(row[:message])}
@@ -160,13 +158,14 @@ EOL
     end
 
     dates = Array.new
-    DB[:rollbook].distinct.select(:date).reverse(:date).each do |date|
+    DB[:rollbook].distinct.select(:date).each do |date|
       dates.push date[:date]
     end
 
     puts "<table class='table'>"
     puts "<tbody>"
-    dates.each do |date|
+    dates.sort_by{|md| m,d = md.split(/\//);
+      -m.to_i*100-d.to_i}.each do |date|
       unless stats[date].nil?
         print <<EOH
 <tr>
