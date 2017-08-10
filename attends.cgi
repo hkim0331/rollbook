@@ -147,8 +147,9 @@ EOL
 
   # FIXME if 2018 comes, no good.
   def weekend?(md)
-    m,d=md.split(/\//)
-    Date.new(2017, m.to_i, d.to_i).wday > 5
+    m, d = md.split(/\//)
+    d = Date.new(2017, m.to_i, d.to_i).wday
+    d == 6 || d == 0
   end
 
   def show(user)
