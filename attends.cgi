@@ -21,6 +21,7 @@ crossorigin="anonymous">
 input.s {width: 2em; text-align: center;}
 input.assess {width: 2em; text-align: center;}
 .error {color: red; }
+.we { background: lightgray; }
 </style>
 </head>
 <body>
@@ -144,11 +145,17 @@ EOL
     puts "<p><a href='/'>back</a></p>"
   end
 
+  # FIXME if 2018 comes, no good.
+  def weekend?(md)
+    m,d=md.split(/\//)
+    Date.new(2017, m.to_i, d.to_i).wday > 5
+  end
+
   def show(user)
     puts "<h2>#{user} records</h2>"
     stats = Hash.new()
     DB[:rollbook].distinct.select(:date,:hour,:status).
-      where("user = ?", user).each do |row|
+      where(Sequel.lit("user = ?", user)).each do |row|
     if stats.has_key?(row[:date])
         stats[row[:date]][row[:hour]] = row[:status]
       else
@@ -168,7 +175,7 @@ EOL
       -m.to_i*100-d.to_i}.each do |date|
       unless stats[date].nil?
         print <<EOH
-<tr>
+<tr class=#{if weekend?(date); "we"; else "wd"; end}>
 <th>
 <a href='attends.cgi?cmd=date&user=#{user}&date=#{date}'>#{date}</a>
 </th>
