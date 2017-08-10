@@ -2,7 +2,7 @@
 (require "common.rkt")
 (require racket/gui/base racket/date db)
 
-(define version "0.5.5")
+(define version "0.5.6")
 
 (define db #f)
 

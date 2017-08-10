@@ -5,7 +5,7 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-VERSION = "0.5.5"
+VERSION = "0.5.6"
 REDMINE = "https://redmine.melt.kyutech.ac.jp"
 
 print <<EOH
