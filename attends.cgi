@@ -5,7 +5,7 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-VERSION = "0.5.4"
+VERSION = "0.5.6"
 REDMINE = "https://redmine.melt.kyutech.ac.jp"
 
 print <<EOH
@@ -21,14 +21,14 @@ crossorigin="anonymous">
 input.s {width: 2em; text-align: center;}
 input.assess {width: 2em; text-align: center;}
 .error {color: red; }
+.we { background: lightgray; }
 </style>
 </head>
 <body>
 <div class="container">
 <h1>Rollbook</h1>
 <p>
-「出席取ればいいんだろう」か、やっぱり。
-やっていることはそれでいいのか？
+「出席取ればいいんだろう」か？ やってることはそれでいいの？
 </p>
 EOH
 
@@ -119,7 +119,7 @@ CREATE
   def show_messages(user,date)
     puts "<h3>#{user} on #{date}</h3>"
     DB[:rollbook].where(user: user, date:date).order(:utc).each do |row|
-      unless row[:message] =~ /fake/
+      unless (row[:message].empty? or row[:message] =~ /fake/)
         print <<EOL
 <p>
 #{row[:hour]} #{adjust(row[:utc])} #{redmine_tag(row[:message])}
@@ -148,11 +148,18 @@ EOL
     puts "<p><a href='/'>back</a></p>"
   end
 
+  # FIXME if 2018 comes, no good.
+  def weekend?(md)
+    m, d = md.split(/\//)
+    d = Date.new(2017, m.to_i, d.to_i).wday
+    d == 6 || d == 0
+  end
+
   def show(user)
     puts "<h2>#{user} records</h2>"
     stats = Hash.new()
     DB[:rollbook].distinct.select(:date,:hour,:status).
-      where("user = ?", user).each do |row|
+      where(Sequel.lit("user = ?", user)).each do |row|
     if stats.has_key?(row[:date])
         stats[row[:date]][row[:hour]] = row[:status]
       else
@@ -162,16 +169,17 @@ EOL
     end
 
     dates = Array.new
-    DB[:rollbook].distinct.select(:date).reverse(:date).each do |date|
+    DB[:rollbook].distinct.select(:date).each do |date|
       dates.push date[:date]
     end
 
     puts "<table class='table'>"
     puts "<tbody>"
-    dates.each do |date|
+    dates.sort_by{|md| m,d = md.split(/\//);
+      -m.to_i*100-d.to_i}.each do |date|
       unless stats[date].nil?
         print <<EOH
-<tr>
+<tr class=#{if weekend?(date); "we"; else "wd"; end}>
 <th>
 <a href='attends.cgi?cmd=date&user=#{user}&date=#{date}'>#{date}</a>
 </th>
