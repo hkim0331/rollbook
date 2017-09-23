@@ -75,6 +75,8 @@ BROWSE
 <h3>Download client</h3>
 <p>macOS only. 最新は #{VERSION}。</p>
 <ul>
+<li><a href="bin/6.10.1/attend">for Racket 6.10.1 users</a></li>
+<li><a href="bin/6.10/attend">for Racket 6.10 users</a></li>
 <li><a href="bin/6.9/attend">for Racket 6.9 users</a></li>
 <li><a href="bin/6.8/attend">for Racket 6.8 users</a></li>
 </ul>
