@@ -2,7 +2,7 @@
 (require "common.rkt")
 (require racket/gui/base racket/date db)
 
-(define version "0.5.6.1")
+(define version "0.5.8")
 
 (define db #f)
 
@@ -32,6 +32,8 @@
     (and (<= from x) (<= x to))))
 
 ;; how to debug?
+;; 2017-10-11T09:43:21.808+09:00
+;; このコードはクライアントではなく、サーバ側にあるべき。
 (define get-hour
   (λ ()
     (let* ((now (seconds->date (current-seconds)))
@@ -56,16 +58,8 @@
            (M (new message% [parent D][label message])))
       (send D show #t))))
 
-;; not used
-;(define attend?
-;  (λ (user date hour)
-;    (let ((answers
-;           (query-rows
-;            db
-;            "select * from rollbook
-;where user=? and date =? and hour =?" user date hour)))
-;      (not (null? answers)))))
-
+;; 遅刻判定のロジックを入れるならここ。
+;; でも1時間に2度クリックとして、2度目は30分過ぎてから。
 (define attend!
   (λ (user date hour message)
     (query-exec
