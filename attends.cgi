@@ -5,7 +5,7 @@ require 'sequel'
 require 'cgi'
 require './common.rb'
 
-VERSION = "0.5.6"
+VERSION = "0.5.7"
 REDMINE = "https://redmine.melt.kyutech.ac.jp"
 
 print <<EOH
@@ -39,7 +39,7 @@ begin
          Sequel.connect("mysql2://#{USER}:#{PASSWORD}@localhost/admin")
        end
 
-  MARK = %w{ ⚫  ◯  ▲}
+  MARK = %w{ ⚫  ◯  △}
 
   def mark(n)
     if n.nil?

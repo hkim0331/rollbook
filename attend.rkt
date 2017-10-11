@@ -2,14 +2,16 @@
 (require "common.rkt")
 (require racket/gui/base racket/date db)
 
-(define version "0.5.6")
+(define version "0.5.6.1")
 
 (define db #f)
 
+(define *debug* false)
+
 (if *debug*
     (begin
-      (set! db (sqlite3-connect #:database "rollbook.db"))
-      (display "debug mode, sqlite3."))
+      (display "debug mode, sqlite3.")
+      (set! db (sqlite3-connect #:database "rollbook.db")))
     (begin
       (set! db (mysql-connect #:user *user*
                               #:password *password*
