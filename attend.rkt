@@ -29,7 +29,6 @@
   (λ (x from to)
     (and (<= from x) (<= x to))))
 
-;; how to debug?
 (define get-hour
   (λ ()
     (let* ((now (seconds->date (current-seconds)))
@@ -53,16 +52,6 @@
     (let* ((D (new dialog% [label "rollbook"][style '(close-button)]))
            (M (new message% [parent D][label message])))
       (send D show #t))))
-
-;; not used
-;(define attend?
-;  (λ (user date hour)
-;    (let ((answers
-;           (query-rows
-;            db
-;            "select * from rollbook
-;where user=? and date =? and hour =?" user date hour)))
-;      (not (null? answers)))))
 
 (define attend!
   (λ (user date hour message)
@@ -115,7 +104,6 @@ where user=? and date =? and hour =?" user date hour)))
 
 (define vp (new vertical-pane% [parent frame]))
 
-
 (define text-field (new text-field% [parent vp]
                         [label ""]
                         [min-width 300]
@@ -147,7 +135,6 @@ where user=? and date =? and hour =?" user date hour)))
                 (status! (get-user) (get-date) (get-hour) message)
                 (dialog "記録しました。")
                 (send frame show #f)))))]))
-
 
 ;;
 ;; main starts here
