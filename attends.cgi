@@ -39,7 +39,7 @@ begin
          Sequel.connect("mysql2://#{USER}:#{PASSWORD}@localhost/admin")
        end
 
-  MARK = %w{ ⚫  ◯  ▲}
+  MARK = %w{ ⚫ ◯ ▲ △ }
 
   def mark(n)
     if n.nil?
