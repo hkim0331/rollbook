@@ -2,7 +2,7 @@
 (require "common.rkt")
 (require racket/gui/base racket/date db)
 
-(define version "0.5.6.1")
+(define version "0.5.8")
 
 (define db #f)
 
@@ -31,6 +31,9 @@
   (λ (x from to)
     (and (<= from x) (<= x to))))
 
+;; how to debug?
+;; 2017-10-11T09:43:21.808+09:00
+;; このコードはクライアントではなく、サーバ側にあるべき。
 (define get-hour
   (λ ()
     (let* ((now (seconds->date (current-seconds)))
@@ -55,6 +58,11 @@
            (M (new message% [parent D][label message])))
       (send D show #t))))
 
+<<<<<<< HEAD
+=======
+;; 遅刻判定のロジックを入れるならここ。
+;; でも1時間に2度クリックとして、2度目は30分過ぎてから。
+>>>>>>> imac3
 (define attend!
   (λ (user date hour message)
     (query-exec
